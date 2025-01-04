@@ -132,7 +132,6 @@ def handle_book_status(request, slug):
 
    return redirect('book', slug)
 
-@login_required(login_url='/login/')
 def handle_want_to_read(user, book):
    if user.currently_reading_books.filter(id=book.id).exists():
       user.currently_reading_books.remove(book)
@@ -140,7 +139,6 @@ def handle_want_to_read(user, book):
       ReadBook.objects.filter(book_id=book.id, user_id=user.id).delete()
    user.want_to_read_books.add(book)
 
-@login_required(login_url='/login/')
 def handle_currently_reading(user, book):
    if user.want_to_read_books.filter(id=book.id).exists():
       user.want_to_read_books.remove(book)
@@ -148,7 +146,6 @@ def handle_currently_reading(user, book):
       ReadBook.objects.filter(book_id=book.id, user_id=user.id).delete()
    user.currently_reading_books.add(book)
 
-@login_required(login_url='/login/')
 def handle_read(user, book):
    if user.want_to_read_books.filter(id=book.id).exists():
       user.want_to_read_books.remove(book)
@@ -158,7 +155,6 @@ def handle_read(user, book):
                                               defaults={'read_date' : datetime.today()})
    read_book.save()
 
-@login_required(login_url='/login/')
 def handle_reset(user, book):
    if user.want_to_read_books.filter(id=book.id).exists():
       user.want_to_read_books.remove(book)
@@ -167,7 +163,6 @@ def handle_reset(user, book):
    if ReadBook.objects.filter(book_id=book.id, user_id=user.id).exists():
       ReadBook.objects.filter(book_id=book.id, user_id=user.id).delete()
 
-@login_required(login_url='/login/')
 def handle_book_review(request, slug):
    user = request.user
    book = Book.objects.get(slug=slug)
@@ -193,7 +188,6 @@ def handle_book_review(request, slug):
 
    return redirect('book', slug)
 
-@login_required(login_url='/login/')
 def remove_review(request, slug):
    user = request.user
    book = Book.objects.get(slug=slug)

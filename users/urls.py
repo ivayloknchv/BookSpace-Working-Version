@@ -12,4 +12,5 @@ urlpatterns = [
     path('edit_profile/genres_change/', views.genres_change, name='genres_change'),
     path('edit_profile/delete_account/', views.delete_account, name='delete_account'),
     path('logout/', views.logout_, name='logout'),
+    path('profile/<str:username>/read_books', views.read_books, name='read_books'),
 ]

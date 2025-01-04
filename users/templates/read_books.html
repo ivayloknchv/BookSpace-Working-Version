@@ -1,0 +1,38 @@
+{% extends "master.html" %}
+{% block title %}Read Books{% endblock %}
+{% block content %}
+<div class="read-books-container">
+    <h2>Read Books</h2>
+    {% if user.pk == request.user.pk %}
+    <p>You have already read:</p>
+    {% else %}
+    <p>{{ user.first_name }} has already read:</p>
+    {% endif %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Book Cover</th>
+                <th>Book Title</th>
+                <th>Author</th>
+                <th>Average Rating</th>
+                <th>Read Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for read_book in read_books %}
+            <tr>
+                <td><img src="{{ read_book.book.cover_url }}" height="60" width="40"></td>
+                <td><a href="{% url 'book' read_book.book.slug %}">{{ read_book.book.title }}</a></td>
+                <td><a href="{% url 'preview_author' read_book.book.author.slug %}">{{ read_book.book.author }}</a></td>
+                {% if read_book.book.avg_review %}
+                <td>{{ read_book.book.avg_review }}</td>
+                {% else %}
+                <td>No reviews yet</td>
+                {% endif %}
+                <td>{{ read_book.read_date }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

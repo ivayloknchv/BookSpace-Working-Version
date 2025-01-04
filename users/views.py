@@ -1,6 +1,6 @@
 from users.models import User
 from django.contrib import messages
-from books_database.models import Genre
+from books_database.models import Genre, ReadBook
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, logout, authenticate, update_session_auth_hash
@@ -126,3 +126,9 @@ def delete_account(request):
     logout(request)
     User.objects.all().filter(id=user.id).delete()
     return redirect('home')
+
+@login_required(login_url='/login/')
+def read_books(request, username):
+    user = User.objects.get(username=username)
+    books = ReadBook.objects.filter(user=user).order_by('-read_date')
+    return render(request, 'read_books.html', {'user' : user, 'read_books' : books})

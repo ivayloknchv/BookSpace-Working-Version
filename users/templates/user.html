@@ -1,10 +1,37 @@
 {% extends "master.html" %}
-
 {% block title %}{{user.username}}{% endblock %}
-
-
 {% block content %}
-<h1>{{ user.first_name }} {{ user.last_name }}</h1>
-<p>{{ user.username }}</p>
-<img src="{{user.profile_picture.url}}">
+
+<div class="user_box" style="display : flex; padding-left : 25px;">
+    <img src="{{user.profile_picture.url}}" width="200" height="200" style="margin-top : 20px;
+    border-radius: 50%;">
+    <div class="details" style="padding-left : 40px;">
+        <h1>{{ user.first_name }} {{ user.last_name }}</h1>
+        {% if user.pk == request.user.pk %}
+        <p><a href="{% url 'edit_profile' %}">Edit Profile</a></p>
+        {% endif %}
+        <p><b>Username:</b> {{ user.username }}</p>
+        <p><b>Join Date:</b> {{ user.joined_date }}</p>
+        <p><b>Level:</b> {{ user.level }}</p>
+        <p><b>Favourite Genres:</b></p>
+        <ul style="display : flex; list-style-type: none; padding: 0; margin: 0;">
+            {% for genre in user.preferred_genres.all %}
+            <li style="padding-right : 20px;"><a href = "{% url 'preview_genre' genre.slug %}">{{genre.name}}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+
+<div class="book-status-container">
+    {% if user.pk == request.user.pk %}
+    <h4>Your books:</h4>
+    {% else %}
+    <h4>{{ user.username }}'s books:</h4>
+    {% endif %}
+    <ul style="display : flex; list-style-type: none; gap: 30px; margin : 0; padding : 0;">
+        <li><a href="{% url 'read_books' user.username %}">Read</a></li>
+        <li><a href="#">Currently Reading</a></li>
+        <li><a href="#">Want To Read</a></li>
+    </ul>
+</div>
 {% endblock %}
