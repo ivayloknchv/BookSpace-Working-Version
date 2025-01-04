@@ -1,0 +1,38 @@
+{% extends "master.html" %}
+{% block title %}Search{% endblock %}
+{% block content %}
+
+<h1>Search Results...</h1>
+{%if total_results %}
+<p>{{total_results}} results were found</p>
+{% endif %}
+{% if not total_results %}
+<p>No matches found...</p>
+{% endif %}
+
+<div class="row justify-content-center d-flex flex-wrap">
+    {% for book in current_page %}
+    <div class="col-sm-6 col-md-3 mb-4 mx-2 d-flex">
+        <div class="card" style="width: 200px; display: flex; flex-direction: column;
+            height: 400px; margin: 0 auto">
+            <img class="card-img-top" src="{{book.cover_url}}"
+                style="width: 200px; height: 350px; object-fit: cover; margin: 0 auto;">
+            <div class="card-body d-flex flex-column" style="flex-grow: 1;">
+                <h4><a href="{% url 'book' book.slug %}"><b>{{book.title}}</b></a></h4>
+                <h5>{{book.author.name}}</h5>
+                <br><br>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+<div class="page-iteration" style="text-align: center;">
+    {% if current_page.has_previous %}
+    <a href="{% url 'search' %}?q={{q}}&page={{ current_page.previous_page_number }}">Previous Page</a>
+    <br>
+    {% endif %}
+    {% if current_page.has_next %}
+    <a href="{% url 'search' %}?q={{q}}&page={{ current_page.next_page_number }}">Next Page</a>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,40 @@
+{% extends "master.html" %}
+{% block title %}All Genres{% endblock %}
+{% block content %}
+<h1>Browse All Genres</h1>
+<div class="d-flex justify-content-end">
+    <div class="btn-group">
+        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown"
+            aria-haspopup="true" aria-expanded="false">
+        Sort By
+        </button>
+        <div class="dropdown-menu dropdown-menu-left">
+            <a class="dropdown-item" href="{% url 'genres' %}?sort=namesAsc">Names A-Z</a>
+            <br>
+            <a class="dropdown-item" href="{% url 'genres' %}?sort=namesDesc">Names Z-A</a>
+            <br>
+            <a class="dropdown-item" href="{% url 'genres' %}?sort=countAsc">Books Count Low to High</a>
+            <br>
+            <a class="dropdown-item" href="{% url 'genres' %}?sort=countDesc">Books Count High to Low</a>
+            <br>
+        </div>
+    </div>
+</div>
+<br>
+<ul class="list-group">
+    {% for genre in current_page %}
+    <li class="list-group-item"><a href="{% url 'preview_genre' genre.slug %}">
+        {{genre.name}}</a><span class="badge">{{genre.book_count}} Books</span>
+    </li>
+    {% endfor %}
+</ul>
+<div class="page-iteration" style="text-align: center;">
+    {% if current_page.has_previous %}
+    <a href="{% url 'genres' %}?sort={{sort}}&page={{ current_page.previous_page_number }}">Previous Page</a>
+    <br>
+    {% endif %}
+    {% if current_page.has_next %}
+    <a href="{% url 'genres' %}?sort={{sort}}&page={{ current_page.next_page_number }}">Next Page</a>
+    {% endif %}
+</div>
+{% endblock %}

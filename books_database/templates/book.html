@@ -1,0 +1,140 @@
+{% extends "master.html" %}
+{% block title %}{{book.title}}{% endblock %}
+{% block content %}
+{% if messages %}
+<ul class="messages" style="list-style-type: none; padding: 0; margin: 0; text-align: center">
+   {% for message in messages %}
+   <li class="alert alert-info" role="alert">{{ message }}</li>
+   {% endfor %}
+</ul>
+{% endif %}
+<div class="book-view" style="display:flex; ">
+   <img src="{{book.cover_url}}" alt="picture not available"  width="300" height="450">
+   <div class="book-info" style="padding: 0 30px">
+      <h1>{{book.title}}</h1>
+      <h3>Author: <a href="{% url 'preview_author' book.author.slug %}">{{book.author}}</a></h3>
+      <div class="genres" style="margin : 20px 0;">
+         <h4><b>Genres:</b></h4>
+         <ul style="display : flex; list-style-type: none; padding: 0; margin: 0;">
+            {% for genre in book.genres.all %}
+            <li style="padding-right : 20px;"><a href = "{% url 'preview_genre' genre.slug %}">{{genre.name}}</a></li>
+            {% endfor %}
+         </ul>
+      </div>
+      <div class="description">
+         <p><b>Description:</b> {{ book.description }}</p>
+      </div>
+      <div style="display : flex;">
+         <div>
+            <div class="status" style="padding : 10px 0 20px 0 ;">
+               <button type="button" class="btn btn-info btn-lg" data-toggle="modal"
+                  data-target="#statusModal" style=" width: 200px; height : 50px; margin : 10px 0px;"> Update Book Status</button>
+               <div id="statusModal" class="modal fade" role="dialog">
+                  <div class="modal-dialog">
+                     <div class="modal-content">
+                        <div class="modal-header">
+                           <button type="button" class="close" data-dismiss="modal">&times;</button>
+                           <h4 class="modal-title">Update Book Status</h4>
+                        </div>
+                        <div class="modal-body">
+                           <form method="post" action="{% url 'handle_book_status' slug=book.slug %}">
+                              {% csrf_token %}
+                              <button type="submit" class="btn btn-primary" name="handle_type" value="want_to_read"
+                              {% if is_in_wanted %}
+                              disabled
+                              {% endif %}>
+                              Want To Read
+                              </button>
+                              <button type="submit" class="btn btn-primary" name="handle_type" value="currently_reading"
+                              {% if is_currently_reading %}
+                              disabled
+                              {% endif %}>
+                              Currently Reading
+                              </button>
+                              <button type="submit" class="btn btn-primary" name="handle_type" value="read"
+                              {% if is_read %}
+                              disabled
+                              {% endif %}>
+                              Read
+                              </button>
+                              <button type="submit" class="btn btn-primary" name="handle_type" value="reset"
+                              {% if not has_status %}
+                              disabled
+                              {% endif %}>
+                              Reset Status
+                              </button>
+                           </form>
+                        </div>
+                        <div class="modal-footer">
+                           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+            <form action="{% url 'handle_book_review' slug=book.slug %}"
+               method="post" class="needs-validation" novalidate>
+               {% csrf_token %}
+               <div class="form-group">
+                  <label for="stars">Rate this book:</label>
+                  <select name="stars" id="stars" class="form-group">
+                     <option value="" disabled selected>Select a rating</option>
+                     <option value="1">1 Star</option>
+                     <option value="2">2 Stars</option>
+                     <option value="3">3 Stars</option>
+                     <option value="4">4 Stars</option>
+                     <option value="5">5 Stars</option>
+                  </select>
+               </div>
+               <button type="submit" class="btn btn-primary">Rate</button>
+               {% if is_reviewed %}
+               <label><a href="{% url 'remove_review' slug=book.slug %}">Remove Review</a></label>
+               {% endif %}
+               <br><br>
+               {% if is_reviewed %}
+               <p>You reviewed this book with {{user_score.review_score}} stars</p>
+               {% endif %}
+               {% if not is_reviewed %}
+               <p>You haven't rated the book yet!</p>
+               {% endif %}
+            </form>
+         </div>
+         <div class="ratings" style="margin-left : 60px;">
+            <h2>Total User Score</h2>
+            <ul style="list-style-type: none; padding: 0; margin: 0;">
+               {% for key, value in stars_count.items %}
+               <li>{{key}} stars - {{value}}</li>
+               {% endfor %}
+            </ul>
+            {% with avg_score=book.avg_review %}
+            {% if avg_score %}
+            <p>Average User Score : {{avg_score}} stars</p>
+            {% endif %}
+            {% if not avg_score %}
+            <p>No reviews made for this book yet! </p>
+            {% endif %}
+            {% endwith %}
+         </div>
+      </div>
+   </div>
+</div>
+<div class="book-recommendations" style="padding-top: 50px;">
+   <h2>You may also like...</h2>
+   <div class="row justify-content-center d-flex flex-wrap">
+      {% for recommendation in recommendations %}
+      <div class="col-sm-6 col-md-3 mb-4 mx-2 d-flex">
+         <div class="card" style="width: 200px; display: flex; flex-direction: column;
+            height: 400px; margin: 0 auto">
+            <img class="card-img-top" src="{{recommendation.cover_url}}"
+               style="width: 200px; height: 350px; object-fit: cover; margin: 0 auto;">
+            <div class="card-body d-flex flex-column" style="flex-grow: 1;">
+               <h4><a href="{% url 'book' recommendation.slug %}"><b>{{recommendation.title}}</b></a></h4>
+               <h5>{{recommendation.author.name}}</h5>
+               <br><br><br>
+            </div>
+         </div>
+      </div>
+      {% endfor %}
+   </div>
+</div>
+{% endblock %}

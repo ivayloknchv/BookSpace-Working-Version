@@ -1,0 +1,10 @@
+{% extends "master.html" %}
+{% block title %}Favourite Genres{% endblock %}
+{% block content %}
+<p>Select Your Favourite Genres:</p>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Finish Registration</button>
+</form>
+{% endblock %}

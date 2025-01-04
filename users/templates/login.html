@@ -1,0 +1,17 @@
+{% extends "master.html" %}
+{% block title %}Login{% endblock %}
+{% block content %}
+<ul class="messages" style="list-style-type: none; padding: 0; margin: 0; text-align: center">
+    {% for message in messages %}
+    <li class="alert alert-info">{{ message }}</li>
+    {% endfor %}
+</ul>
+<h2>Login</h2>
+<form method="post">
+    {% csrf_token %}
+    <div class="mb-3">
+        {{ form.as_p }}
+    </div>
+    <button type="submit" class="btn btn-primary">Login</button>
+</form>
+{% endblock %}

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en" style=" overflow-x: hidden;">
+    <head>
+        <meta charset="UTF-8">
+        <title>{% block title %}{% endblock %}</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    </head>
+    <body >
+        {% if user.is_authenticated %}
+        <nav class="navbar navbar-inverse">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="{% url 'home' %}">BookSpace</a>
+                </div>
+                <ul class="nav navbar-nav">
+                    <li><a href="{% url 'home' %}">Home</a></li>
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">Browse
+                        <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="{% url 'authors' %}">Browse Authors</a></li>
+                            <li><a href="{% url 'genres' %}">Browse Genres</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="#">Forum</a></li>
+                </ul>
+                <form class="navbar-form navbar-left" method="GET" action="{% url 'search' %}">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="Search books..." name="q">
+                    </div>
+                    <button type="submit" class="btn btn-default">Search</button>
+                </form>
+                <ul class="nav navbar-nav navbar-right">
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">Profile
+                        <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="{% url 'profile' user.username %}">View Profile</a></li>
+                            <li><a href="{% url 'edit_profile' %}">Edit Profile</a></li>
+                            <li><a href="{% url 'logout' %}">Logout</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+        {% endif %}
+        {% if not user.is_authenticated%}
+        <nav class="navbar navbar-inverse">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="{% url 'home' %}">BookSpace</a>
+                </div>
+                <ul class="nav navbar-nav">
+                    <li><a href="{% url 'home' %}">Home</a></li>
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">Browse
+                        <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="{% url 'authors' %}">Browse Authors</a></li>
+                            <li><a href="{% url 'genres' %}">Browse Genres</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="#">Forum</a></li>
+                </ul>
+                <form class="navbar-form navbar-left" method="GET" action="{% url 'search' %}">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="Search books..." name="q">
+                    </div>
+                    <button type="submit" class="btn btn-default">Search</button>
+                </form>
+                <form class="navbar-form navbar-right" method="GET" action="{% url 'signup' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-warning">Signup</button>
+                </form>
+                <form class="navbar-form navbar-right" method="GET" action="{% url 'login' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-warning">Login</button>
+                </form>
+            </div>
+        </nav>
+        {% endif %}
+        <div style="padding : 0 20px;">
+            {% block content %}
+            {% endblock %}
+        </div>
+    </body>
+</html>

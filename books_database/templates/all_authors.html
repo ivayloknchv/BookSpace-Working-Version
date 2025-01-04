@@ -1,0 +1,40 @@
+{% extends "master.html" %}
+{% block title %}All Authors{% endblock %}
+{% block content %}
+<h1>Browse All Authors</h1>
+<div class="d-flex justify-content-end">
+    <div class="btn-group">
+        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown"
+            aria-haspopup="true" aria-expanded="false">
+        Sort By
+        </button>
+        <div class="dropdown-menu dropdown-menu-left">
+            <a class="dropdown-item" href="{% url 'authors' %}?sort=namesAsc">Names A-Z</a>
+            <br>
+            <a class="dropdown-item" href="{% url 'authors' %}?sort=namesDesc">Names Z-A</a>
+            <br>
+            <a class="dropdown-item" href="{% url 'authors' %}?sort=countAsc">Books Count Low to High</a>
+            <br>
+            <a class="dropdown-item" href="{% url 'authors' %}?sort=countDesc">Books Count High to Low</a>
+            <br>
+        </div>
+    </div>
+</div>
+<br>
+<ul class="list-group">
+    {% for author in current_page %}
+    <li class="list-group-item"><a href="{% url 'preview_author' author.slug %}">
+        {{author.name}}</a><span class="badge">{{author.book_count}} Books</span>
+    </li>
+    {% endfor %}
+</ul>
+<div class="page-iteration" style="text-align: center;">
+    {% if current_page.has_previous %}
+    <a href="{% url 'authors' %}?sort={{sort}}&page={{ current_page.previous_page_number }}">Previous Page</a>
+    <br>
+    {% endif %}
+    {% if current_page.has_next %}
+    <a href="{% url 'authors' %}?sort={{sort}}&page={{ current_page.next_page_number }}">Next Page</a>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends "master.html" %}
+{% block title %}Signup{% endblock %}
+{% block content %}
+<h2>Signup</h2>
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="mb-3">
+        {{ signup_form.as_p }}
+    </div>
+    {% csrf_token %}
+    <div class="mb-3">
+        {{ picture_form.as_p }}
+    </div>
+    <button type="submit" class="btn btn-primary">Signup</button>
+</form>
+{% endblock %}

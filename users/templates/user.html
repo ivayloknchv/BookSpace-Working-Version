@@ -1,0 +1,10 @@
+{% extends "master.html" %}
+
+{% block title %}{{user.username}}{% endblock %}
+
+
+{% block content %}
+<h1>{{ user.first_name }} {{ user.last_name }}</h1>
+<p>{{ user.username }}</p>
+<img src="{{user.profile_picture.url}}">
+{% endblock %}
