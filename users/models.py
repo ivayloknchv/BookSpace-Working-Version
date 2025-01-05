@@ -11,8 +11,6 @@ class User(AbstractUser):
     xp = models.PositiveIntegerField(default=0)
     preferred_genres = models.ManyToManyField('books_database.Genre',
                                              related_name='prefered_genres')
-    want_to_read_books = models.ManyToManyField('books_database.Book', related_name='want_to_read')
-    currently_reading_books = models.ManyToManyField('books_database.Book',
-                                                     related_name='currently_reading')
+
     def __str__(self):
         return self.username

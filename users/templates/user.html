@@ -30,8 +30,8 @@
     {% endif %}
     <ul style="display : flex; list-style-type: none; gap: 30px; margin : 0; padding : 0;">
         <li><a href="{% url 'read_books' user.username %}">Read</a></li>
-        <li><a href="#">Currently Reading</a></li>
-        <li><a href="#">Want To Read</a></li>
+        <li><a href="{% url 'currently_reading_books' user.username %}">Currently Reading</a></li>
+        <li><a href="{% url 'want_to_read_books' user.username %}">Want To Read</a></li>
     </ul>
 </div>
 {% endblock %}

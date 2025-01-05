@@ -75,6 +75,26 @@ class Book(models.Model):
         return stars_count
 
 
+class WantToReadBook(models.Model):
+    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    add_date = models.DateField()
+
+
+class CurrentlyReadingBook(models.Model):
+    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    add_date = models.DateField()
+
+class ReadBook(models.Model):
+    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    read_date = models.DateField()
+
+    def __str__(self):
+        return f'{self.book.title} read by {self.user} on {self.read_date}'
+
+
 class BookReview(models.Model):
     book = models.ForeignKey(Book, on_delete=models.CASCADE)
     review_user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -85,10 +105,3 @@ class BookReview(models.Model):
         return f'Review for {self.book.title} - {self.review_score}'
 
 
-class ReadBook(models.Model):
-    book = models.ForeignKey(Book, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    read_date = models.DateField()
-
-    def __str__(self):
-        return f'{self.book.title} read by {self.user} on {self.read_date}'

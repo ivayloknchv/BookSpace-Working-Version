@@ -1,0 +1,48 @@
+{% extends "master.html" %}
+{% block title %}Currently Reading {% endblock %}
+{% block content %}
+<p><a href="{% url 'profile' user.username %}">Back to profile</a></p>
+<div class="read-books-container">
+    <h2>Read Books</h2>
+    {% if user.pk == request.user.pk %}
+    <p>You are currently reading:</p>
+    {% else %}
+    <p>{{ user.first_name }} is reading:</p>
+    {% endif %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Book Cover</th>
+                <th>Book Title</th>
+                <th>Author</th>
+                <th>Average Rating</th>
+                <th>Read Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for currently_reading_book in currently_reading_page %}
+            <tr>
+                <td><img src="{{ currently_reading_book.book.cover_url }}" height="60" width="40"></td>
+                <td><a href="{% url 'book' currently_reading_book.book.slug %}">{{ currently_reading_book.book.title }}</a></td>
+                <td><a href="{% url 'preview_author' currently_reading_book.book.author.slug %}">{{ currently_reading_book.book.author }}</a></td>
+                {% if currently_reading_book.avg_review %}
+                <td>{{ currently_reading_book.avg_review }}</td>
+                {% else %}
+                <td>No reviews yet</td>
+                {% endif %}
+                <td>{{ currently_reading_book.add_date }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<div class="page-iteration" style="text-align: center;">
+    {% if currently_reading_page.has_previous %}
+    <a href="{% url 'currently_reading_books' user.username %}?page={{ currently_reading_page.previous_page_number }}">Previous Page</a>
+    <br>
+    {% endif %}
+    {% if currently_reading_page.has_next %}
+    <a href="{% url 'currently_reading_books' user.username %}?page={{ currently_reading_page.next_page_number }}">Next Page</a>
+    {% endif %}
+</div>
+{% endblock %}

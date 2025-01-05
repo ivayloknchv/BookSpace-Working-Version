@@ -4,8 +4,8 @@ from datetime import date, datetime
 from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-from books_database.models import Book, Genre, Author, ReadBook, BookReview
-
+from books_database.models import (Book, Genre, Author, WantToReadBook,
+                                   CurrentlyReadingBook, ReadBook, BookReview)
 
 RECOMMENDATIONS_TO_SHOW = 12
 
@@ -30,8 +30,8 @@ def view_book(request, slug):
    recommendations = create_recommendations(book)
 
    if user.is_authenticated:
-      is_in_wanted = user.want_to_read_books.filter(id=book.id).exists()
-      is_currently_reading = user.currently_reading_books.filter(id=book.id).exists()
+      is_in_wanted = WantToReadBook.objects.filter(book_id=book.id, user_id=user.id).exists()
+      is_currently_reading = CurrentlyReadingBook.objects.filter(book_id=book.id, user_id=user.id).exists()
       is_read = ReadBook.objects.filter(book_id=book.id, user_id=user.id).exists()
       has_status = is_in_wanted or is_currently_reading or is_read
       is_reviewed = BookReview.objects.filter(book_id=book.id, review_user_id=user.id).exists()
@@ -133,33 +133,37 @@ def handle_book_status(request, slug):
    return redirect('book', slug)
 
 def handle_want_to_read(user, book):
-   if user.currently_reading_books.filter(id=book.id).exists():
-      user.currently_reading_books.remove(book)
+   if CurrentlyReadingBook.objects.filter(book_id=book.id, user_id=user.id).exists():
+      CurrentlyReadingBook.objects.filter(book_id=book.id, user_id=user.id).delete()
    if ReadBook.objects.filter(book_id=book.id, user_id=user.id).exists():
       ReadBook.objects.filter(book_id=book.id, user_id=user.id).delete()
-   user.want_to_read_books.add(book)
+   want_to_read_book, is_created = WantToReadBook.objects.get_or_create(book_id=book.id, user_id=user.id,
+                                                                defaults={'add_date' : datetime.today()})
+   want_to_read_book.save()
 
 def handle_currently_reading(user, book):
-   if user.want_to_read_books.filter(id=book.id).exists():
-      user.want_to_read_books.remove(book)
+   if WantToReadBook.objects.filter(book_id=book.id, user_id=user.id).exists():
+      WantToReadBook.objects.filter(book_id=book.id, user_id=user.id).delete()
    if ReadBook.objects.filter(book_id=book.id, user_id=user.id).exists():
       ReadBook.objects.filter(book_id=book.id, user_id=user.id).delete()
-   user.currently_reading_books.add(book)
+   currently_reading_book, is_created = CurrentlyReadingBook.objects.get_or_create(book_id=book.id, user_id=user.id,
+                                                          defaults={'add_date': datetime.today()})
+   currently_reading_book.save()
 
 def handle_read(user, book):
-   if user.want_to_read_books.filter(id=book.id).exists():
-      user.want_to_read_books.remove(book)
-   if user.currently_reading_books.filter(id=book.id).exists():
-      user.currently_reading_books.remove(book)
+   if WantToReadBook.objects.filter(book_id=book.id, user_id=user.id).exists():
+      WantToReadBook.objects.filter(book_id=book.id, user_id=user.id).delete()
+   if CurrentlyReadingBook.objects.filter(book_id=book.id, user_id=user.id).exists():
+      CurrentlyReadingBook.objects.filter(book_id=book.id, user_id=user.id).delete()
    read_book, is_created = ReadBook.objects.get_or_create(book_id = book.id, user_id = user.id,
                                               defaults={'read_date' : datetime.today()})
    read_book.save()
 
 def handle_reset(user, book):
-   if user.want_to_read_books.filter(id=book.id).exists():
-      user.want_to_read_books.remove(book)
-   if user.currently_reading_books.filter(id=book.id).exists():
-      user.currently_reading_books.remove(book)
+   if WantToReadBook.objects.filter(book_id=book.id, user_id=user.id).exists():
+      WantToReadBook.objects.filter(book_id=book.id, user_id=user.id).delete()
+   if CurrentlyReadingBook.objects.filter(book_id=book.id, user_id=user.id).exists():
+      CurrentlyReadingBook.objects.filter(book_id=book.id, user_id=user.id).delete()
    if ReadBook.objects.filter(book_id=book.id, user_id=user.id).exists():
       ReadBook.objects.filter(book_id=book.id, user_id=user.id).delete()
 

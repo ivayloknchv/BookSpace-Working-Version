@@ -13,4 +13,8 @@ urlpatterns = [
     path('edit_profile/delete_account/', views.delete_account, name='delete_account'),
     path('logout/', views.logout_, name='logout'),
     path('profile/<str:username>/read_books', views.read_books, name='read_books'),
+    path('profile/<str:username>/currently_reading_books', views.currently_reading_books,
+         name='currently_reading_books'),
+    path('profile/<str:username>/want_to_read_books', views.want_to_read_books,
+         name='want_to_read_books'),
 ]

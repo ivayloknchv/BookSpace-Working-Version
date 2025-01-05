@@ -1,11 +1,15 @@
 from users.models import User
 from django.contrib import messages
-from books_database.models import Genre, ReadBook
+from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
+from books_database.models import Genre, CurrentlyReadingBook, WantToReadBook, ReadBook
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, logout, authenticate, update_session_auth_hash
 from .forms import (MyLoginForm, MyUpdatePictureForm, MySignupForm, MySignupGenresForm, MyEditProfileForm,
                     MyPasswordChangeForm, MyChangeGenresForm)
+
+
+BOOKS_PER_PAGE = 10
 
 
 def signup_(request):
@@ -131,4 +135,28 @@ def delete_account(request):
 def read_books(request, username):
     user = User.objects.get(username=username)
     books = ReadBook.objects.filter(user=user).order_by('-read_date')
-    return render(request, 'read_books.html', {'user' : user, 'read_books' : books})
+    books_paginator = Paginator(books, BOOKS_PER_PAGE)
+    page_num = request.GET.get('page', 1)
+    read_books_page = books_paginator.get_page(page_num)
+    return render(request, 'read_books.html',
+                  {'user' : user, 'read_books_page' : read_books_page})
+
+@login_required(login_url='/login/')
+def currently_reading_books(request, username):
+    user = User.objects.get(username=username)
+    books = CurrentlyReadingBook.objects.filter(user=user).order_by('-add_date')
+    books_paginator = Paginator(books, BOOKS_PER_PAGE)
+    page_num = request.GET.get('page', 1)
+    currently_reading_page = books_paginator.get_page(page_num)
+    return render(request, 'currently_reading_books.html',
+                  {'user' : user, 'currently_reading_page' : currently_reading_page})
+
+@login_required(login_url='/login/')
+def want_to_read_books(request, username):
+    user = User.objects.get(username=username)
+    books = WantToReadBook.objects.filter(user=user).order_by('-add_date')
+    books_paginator = Paginator(books, BOOKS_PER_PAGE)
+    page_num = request.GET.get('page', 1)
+    want_to_read_page = books_paginator.get_page(page_num)
+    return render(request, 'want_to_read_books.html',
+                  {'user' : user, 'want_to_read_page' : want_to_read_page})

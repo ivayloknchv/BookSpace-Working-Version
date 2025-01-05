@@ -1,6 +1,8 @@
 {% extends "master.html" %}
 {% block title %}Read Books{% endblock %}
 {% block content %}
+
+<p><a href="{% url 'profile' user.username %}">Back to profile</a></p>
 <div class="read-books-container">
     <h2>Read Books</h2>
     {% if user.pk == request.user.pk %}
@@ -19,7 +21,7 @@
             </tr>
         </thead>
         <tbody>
-            {% for read_book in read_books %}
+            {% for read_book in read_books_page %}
             <tr>
                 <td><img src="{{ read_book.book.cover_url }}" height="60" width="40"></td>
                 <td><a href="{% url 'book' read_book.book.slug %}">{{ read_book.book.title }}</a></td>
@@ -34,5 +36,15 @@
             {% endfor %}
         </tbody>
     </table>
+</div>
+
+<div class="page-iteration" style="text-align: center;">
+    {% if read_books_page.has_previous %}
+    <a href="{% url 'read_books' user.username %}?page={{ read_books_page.previous_page_number }}">Previous Page</a>
+    <br>
+    {% endif %}
+    {% if read_books_page.has_next %}
+    <a href="{% url 'read_books' user.username %}?page={{ read_books_page.next_page_number }}">Next Page</a>
+    {% endif %}
 </div>
 {% endblock %}
