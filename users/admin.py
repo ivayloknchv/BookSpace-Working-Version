@@ -1,5 +1,5 @@
 from django.contrib import admin
-from users.models import User
+from users.models import User, FollowRelation
 
 
 class UserAdmin(admin.ModelAdmin):
@@ -16,4 +16,13 @@ class UserAdmin(admin.ModelAdmin):
         return ', '.join([genre.name for genre in user.preferred_genres.all()])
 
 
+
+class FollowRelationAdmin(admin.ModelAdmin):
+    model = FollowRelation
+    ordering = ('date_time',)
+    fields = ('follower', 'followed', 'date_time')
+    list_display = ('follower', 'followed', 'date_time')
+
+
 admin.site.register(User, UserAdmin)
+admin.site.register(FollowRelation, FollowRelationAdmin)

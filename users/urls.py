@@ -17,4 +17,6 @@ urlpatterns = [
          name='currently_reading_books'),
     path('profile/<str:username>/want_to_read_books', views.want_to_read_books,
          name='want_to_read_books'),
+    path('follow/<str:username>', views.follow_user, name='follow_user'),
+    path('unfollow/<str:username>', views.unfollow_user, name='unfollow_user')
 ]

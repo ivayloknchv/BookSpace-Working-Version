@@ -8,20 +8,20 @@
 </ul>
 <div class="forms" style="justify-content : space around;">
     <div class="standard-forms" style="display : flex;">
-    <form action = "{% url 'user_data_change' %}" method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        {{ user_data_form.as_p }}
-        {% csrf_token %}
-        {{ picture_form.as_p }}
-        <button type="submit" class="btn btn-primary">Save Changes</button>
-    </form>
-    <br>
-    <form action = "{% url 'password_change' %}" method="post">
-        {% csrf_token %}
-        {{ password_form.as_p }}
-        <button type="submit" class="btn btn-primary">Change Password</button>
-    </form>
-    <br>
+        <form action = "{% url 'user_data_change' %}" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ user_data_form.as_p }}
+            {% csrf_token %}
+            {{ picture_form.as_p }}
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+        </form>
+        <br>
+        <form action = "{% url 'password_change' %}" method="post">
+            {% csrf_token %}
+            {{ password_form.as_p }}
+            <button type="submit" class="btn btn-primary">Change Password</button>
+        </form>
+        <br>
     </div>
     <form action="{% url 'genres_change' %}" method="post">
         {% csrf_token %}
@@ -44,8 +44,30 @@
     </form>
     <br>
 </div>
-<form method="post" action="{% url 'delete_account' %}">
-    {% csrf_token %}
-    <button type="submit" class="btn btn-danger">Delete Account</button>
-</form>
+<div class="delete-account-container">
+    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal">Delete Account</button>
+    <div class="modal fade" id="deleteModal" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Delete Account</h4>
+                </div>
+                <div class="modal-body">
+                    <p>Enter your password to confirm.</p>
+                    <form method="post" action="{% url 'delete_account' %}" style="display: flex;
+                        justify-content: center;
+                        align-items: center; gap : 10px;">
+                        {% csrf_token %}
+                        <input type="password"  name="password_input" required>
+                        <button type="submit" class="btn btn-danger">Delete Account</button>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

@@ -1,7 +1,8 @@
-from users.models import User
+from django.contrib.auth.hashers import check_password
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
+from users.models import User, FollowRelation
 from books_database.models import Genre, CurrentlyReadingBook, WantToReadBook, ReadBook
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, logout, authenticate, update_session_auth_hash
@@ -69,7 +70,9 @@ def logout_(request):
 @login_required(login_url='/login/')
 def view_profile(request, username):
     user = User.objects.get(username=username)
-    return render(request, 'user.html', {'user' : user})
+    is_followed = FollowRelation.objects.filter(follower=request.user,followed=user).exists()
+
+    return render(request, 'user.html', {'user' : user, 'is_followed' : is_followed})
 
 @login_required(login_url='/login/')
 def edit_profile(request):
@@ -126,10 +129,31 @@ def genres_change(request):
 
 @login_required(login_url='/login/')
 def delete_account(request):
-    user = request.user
-    logout(request)
-    User.objects.all().filter(id=user.id).delete()
-    return redirect('home')
+    if request.method == 'POST':
+        user = request.user
+        password = request.POST.get('password_input')
+        if check_password(password, user.password):
+            logout(request)
+            User.objects.all().filter(id=user.id).delete()
+            return redirect('home')
+        else:
+            messages.error(request, 'Invalid password! Try again!')
+    return redirect('edit_profile')
+
+@login_required(login_url='/login/')
+def follow_user(request, username):
+    follower = request.user
+    followed = User.objects.get(username=username)
+    follow_relation = FollowRelation(follower=follower, followed=followed)
+    follow_relation.save()
+    return redirect(request.META.get('HTTP_REFERER', '/'))
+
+@login_required(login_url='/login/')
+def unfollow_user(request, username):
+    follower = request.user
+    followed = User.objects.get(username=username)
+    FollowRelation.objects.get(follower=follower, followed=followed).delete()
+    return redirect(request.META.get('HTTP_REFERER', '/'))
 
 @login_required(login_url='/login/')
 def read_books(request, username):

@@ -1,10 +1,9 @@
 {% extends "master.html" %}
-{% block title %}{{user.username}}{% endblock %}
+{% block title %}{{ user.first_name }} {{ user.last_name }} ({{ user.username }}){% endblock %}
 {% block content %}
-
 <div class="user_box" style="display : flex; padding-left : 25px;">
     <img src="{{user.profile_picture.url}}" width="200" height="200" style="margin-top : 20px;
-    border-radius: 50%;">
+        border-radius: 50%;">
     <div class="details" style="padding-left : 40px;">
         <h1>{{ user.first_name }} {{ user.last_name }}</h1>
         {% if user.pk == request.user.pk %}
@@ -21,7 +20,21 @@
         </ul>
     </div>
 </div>
-
+<div class="follow-container">
+    {% if user.pk != request.user.pk %}
+    {% if is_followed %}
+    <form method="post" action="{% url 'unfollow_user' user.username %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary">Unfollow</button>
+    </form>
+    {% else %}
+    <form method="post" action="{% url 'follow_user' user.username %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary">Follow</button>
+    </form>
+    {% endif %}
+    {% endif %}
+</div>
 <div class="book-status-container">
     {% if user.pk == request.user.pk %}
     <h4>Your books:</h4>
