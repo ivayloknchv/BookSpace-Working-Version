@@ -1,0 +1,41 @@
+{% extends "master.html" %}
+{% block title %}
+{% if user.pk == request.user.pk%}
+Following
+{% else %}
+{{ user.first_name }} {{ user.last_name }} ({{ user.username }}) / Following
+{% endif %}
+{% endblock %}
+{% block content %}
+
+<p><a href="{% url 'profile' user.username %}">Back to profile</a></p>
+<div class="following-container">
+{% if user.pk == request.user.pk%}
+<h2>You are following</h2>
+{% else %}
+<h2>{{ user.username }} is following</h2>
+{% endif %}
+<ul class="list-group">
+    {% for followed in following_page %}
+    <li class="list-group-item">
+        <img src="{{ followed.followed.profile_picture.url }}" height="40" width="40"
+             style="border-radius: 50%;">
+        <a href="{% url 'profile' followed.followed.username %}">
+            {{ followed.followed.first_name }} {{ followed.followed.last_name }}
+            {{ followed.followed }}
+        </a>
+    </li>
+    {% endfor %}
+</ul>
+</div>
+
+<div class="page-iteration" style="text-align: center;">
+    {% if following_page.has_previous %}
+    <a href="{% url 'following' user.username %}?page={{ following_page.previous_page_number }}">Previous Page</a>
+    <br>
+    {% endif %}
+    {% if following_page.has_next %}
+    <a href="{% url 'following' user.username %}?page={{ following_page.next_page_number }}">Next Page</a>
+    {% endif %}
+</div>
+{% endblock %}

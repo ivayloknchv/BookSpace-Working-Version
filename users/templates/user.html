@@ -21,6 +21,10 @@
     </div>
 </div>
 <div class="follow-container">
+    <div class="counters" style="display : flex; gap : 20px;">
+        <h4><a href = "{% url 'followers' user.username %}">{{ followers_count }} Followers</a></h4>
+    <h4><a href = "{% url 'following' user.username %}">{{ following_count }} Following</a></h4>
+    </div>
     {% if user.pk != request.user.pk %}
     {% if is_followed %}
     <form method="post" action="{% url 'unfollow_user' user.username %}">

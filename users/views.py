@@ -11,7 +11,7 @@ from .forms import (MyLoginForm, MyUpdatePictureForm, MySignupForm, MySignupGenr
 
 
 BOOKS_PER_PAGE = 10
-
+ACCOUNTS_PER_PAGE = 20
 
 def signup_(request):
     if request.method == 'POST':
@@ -71,8 +71,10 @@ def logout_(request):
 def view_profile(request, username):
     user = User.objects.get(username=username)
     is_followed = FollowRelation.objects.filter(follower=request.user,followed=user).exists()
-
-    return render(request, 'user.html', {'user' : user, 'is_followed' : is_followed})
+    following_count = FollowRelation.objects.filter(follower=user).count()
+    followers_count = FollowRelation.objects.filter(followed=user).count()
+    return render(request, 'user.html', {'user' : user, 'is_followed' : is_followed,
+                   'following_count' : following_count, 'followers_count' :  followers_count})
 
 @login_required(login_url='/login/')
 def edit_profile(request):
@@ -184,3 +186,23 @@ def want_to_read_books(request, username):
     want_to_read_page = books_paginator.get_page(page_num)
     return render(request, 'want_to_read_books.html',
                   {'user' : user, 'want_to_read_page' : want_to_read_page})
+
+@login_required(login_url='/login/')
+def view_followers(request, username):
+    user = User.objects.get(username=username)
+    followers = FollowRelation.objects.filter(followed=user)
+    followers_paginator = Paginator(followers, ACCOUNTS_PER_PAGE)
+    page_num = request.GET.get('page', 1)
+    followers_page = followers_paginator.get_page(page_num)
+    return render(request, 'followers.html',
+                  {'user' : user, 'followers_page' : followers_page})
+
+@login_required(login_url='/login/')
+def view_following(request, username):
+    user = User.objects.get(username=username)
+    following = FollowRelation.objects.filter(follower=user)
+    following_paginator = Paginator(following, ACCOUNTS_PER_PAGE)
+    page_num = request.GET.get('page', 1)
+    following_page = following_paginator.get_page(page_num)
+    return render(request, 'following.html',
+                  {'user' : user, 'following_page' : following_page})
