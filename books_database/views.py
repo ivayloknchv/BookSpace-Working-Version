@@ -7,6 +7,9 @@ from django.contrib.auth.decorators import login_required
 from books_database.models import (Book, Genre, Author, WantToReadBook,
                                    CurrentlyReadingBook, ReadBook, BookReview)
 
+from activities.models import WantToReadActivity, CurrentlyReadingActivity, ReadActivity, RatingActivity
+
+
 RECOMMENDATIONS_TO_SHOW = 12
 
 
@@ -140,6 +143,8 @@ def handle_want_to_read(user, book):
    want_to_read_book, is_created = WantToReadBook.objects.get_or_create(book_id=book.id, user_id=user.id,
                                                                 defaults={'add_date' : datetime.today()})
    want_to_read_book.save()
+   want_to_read_book_activity = WantToReadActivity(book=book, initiator=user)
+   want_to_read_book_activity.save()
 
 def handle_currently_reading(user, book):
    if WantToReadBook.objects.filter(book_id=book.id, user_id=user.id).exists():
@@ -149,6 +154,8 @@ def handle_currently_reading(user, book):
    currently_reading_book, is_created = CurrentlyReadingBook.objects.get_or_create(book_id=book.id, user_id=user.id,
                                                           defaults={'add_date': datetime.today()})
    currently_reading_book.save()
+   currently_reading_book_activity = CurrentlyReadingActivity(book=book, initiator=user)
+   currently_reading_book_activity.save()
 
 def handle_read(user, book):
    if WantToReadBook.objects.filter(book_id=book.id, user_id=user.id).exists():
@@ -158,6 +165,8 @@ def handle_read(user, book):
    read_book, is_created = ReadBook.objects.get_or_create(book_id = book.id, user_id = user.id,
                                               defaults={'read_date' : datetime.today()})
    read_book.save()
+   read_book_activity = ReadActivity(book=book, initiator=user)
+   read_book_activity.save()
 
 def handle_reset(user, book):
    if WantToReadBook.objects.filter(book_id=book.id, user_id=user.id).exists():
@@ -186,6 +195,9 @@ def handle_book_review(request, slug):
          review.review_score = stars
          review.review_date = date.today()
          review.save()
+
+      rating_activity = RatingActivity(initiator=user, book=book, stars=stars)
+      rating_activity.save()
 
       handle_read(user, book)
       messages.success(request, f'You rated {book.title} with {stars} stars!')

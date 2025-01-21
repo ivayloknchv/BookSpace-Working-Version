@@ -26,6 +26,7 @@ INSTALLED_APPS = [
     'users',
     'homepage',
     'search',
+    'activities',
 ]
 
 MIDDLEWARE = [

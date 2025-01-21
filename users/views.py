@@ -8,7 +8,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, logout, authenticate, update_session_auth_hash
 from .forms import (MyLoginForm, MyUpdatePictureForm, MySignupForm, MySignupGenresForm, MyEditProfileForm,
                     MyPasswordChangeForm, MyChangeGenresForm)
-
+from activities.models import FollowActivity
 
 BOOKS_PER_PAGE = 10
 ACCOUNTS_PER_PAGE = 20
@@ -148,6 +148,8 @@ def follow_user(request, username):
     followed = User.objects.get(username=username)
     follow_relation = FollowRelation(follower=follower, followed=followed)
     follow_relation.save()
+    follow_activity = FollowActivity(initiator=follower, followed_user=followed)
+    follow_activity.save()
     return redirect(request.META.get('HTTP_REFERER', '/'))
 
 @login_required(login_url='/login/')
