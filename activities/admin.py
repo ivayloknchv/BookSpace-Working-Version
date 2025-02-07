@@ -1,6 +1,6 @@
 from django.contrib import admin
 from .models import (FollowActivity, WantToReadActivity,
-                    CurrentlyReadingActivity, ReadActivity, RatingActivity)
+                    CurrentlyReadingActivity, ReadActivity, RatingActivity, ActivityWrapper)
 
 
 class FollowActivityAdmin(admin.ModelAdmin):
@@ -38,8 +38,19 @@ class RatingActivityAdmin(admin.ModelAdmin):
     list_display = ('initiator', 'activity_datetime', 'book', 'stars')
 
 
+class ActivityWrapperAdmin(admin.ModelAdmin):
+    model = ActivityWrapper
+    ordering = ('initiator', 'datetime', 'follow_activity', 'want_to_read_activity', 'currently_reading_activity',
+                'read_activity', 'rating_activity')
+    fields = ('initiator', 'datetime', 'follow_activity', 'want_to_read_activity', 'currently_reading_activity',
+                'read_activity', 'rating_activity')
+    list_display = ('initiator', 'datetime', 'follow_activity', 'want_to_read_activity', 'currently_reading_activity',
+                'read_activity', 'rating_activity')
+
+
 admin.site.register(FollowActivity, FollowActivityAdmin)
 admin.site.register(WantToReadActivity, WantToReadActivityAdmin)
 admin.site.register(CurrentlyReadingActivity, CurrentlyReadingActivityAdmin)
 admin.site.register(ReadActivity, ReadActivityAdmin)
 admin.site.register(RatingActivity, RatingActivityAdmin)
+admin.site.register(ActivityWrapper, ActivityWrapperAdmin)

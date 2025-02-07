@@ -51,4 +51,11 @@
         <li><a href="{% url 'want_to_read_books' user.username %}">Want To Read</a></li>
     </ul>
 </div>
+
+<div class="recent-activities">
+<h4>Recent Activities: </h4>
+{% for activity in activities %}
+{{ activity.display_activity }}
+{% endfor %}
+</div>
 {% endblock %}

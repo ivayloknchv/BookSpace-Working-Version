@@ -6,9 +6,8 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from books_database.models import (Book, Genre, Author, WantToReadBook,
                                    CurrentlyReadingBook, ReadBook, BookReview)
-
-from activities.models import WantToReadActivity, CurrentlyReadingActivity, ReadActivity, RatingActivity
-
+from activities.models import (WantToReadActivity, CurrentlyReadingActivity, ReadActivity,
+                               RatingActivity, ActivityWrapper)
 
 RECOMMENDATIONS_TO_SHOW = 12
 
@@ -143,19 +142,25 @@ def handle_want_to_read(user, book):
    want_to_read_book, is_created = WantToReadBook.objects.get_or_create(book_id=book.id, user_id=user.id,
                                                                 defaults={'add_date' : datetime.today()})
    want_to_read_book.save()
-   want_to_read_book_activity = WantToReadActivity(book=book, initiator=user)
-   want_to_read_book_activity.save()
+   want_to_read_activity = WantToReadActivity(book=book, initiator=user)
+   want_to_read_activity.save()
+   want_to_read_activity_wrapper = ActivityWrapper(initiator=user, want_to_read_activity = want_to_read_activity,
+                                                   datetime=want_to_read_activity.activity_datetime)
+   want_to_read_activity_wrapper.save()
 
 def handle_currently_reading(user, book):
    if WantToReadBook.objects.filter(book_id=book.id, user_id=user.id).exists():
       WantToReadBook.objects.filter(book_id=book.id, user_id=user.id).delete()
    if ReadBook.objects.filter(book_id=book.id, user_id=user.id).exists():
       ReadBook.objects.filter(book_id=book.id, user_id=user.id).delete()
-   currently_reading_book, is_created = CurrentlyReadingBook.objects.get_or_create(book_id=book.id, user_id=user.id,
+   currently_reading, is_created = CurrentlyReadingBook.objects.get_or_create(book_id=book.id, user_id=user.id,
                                                           defaults={'add_date': datetime.today()})
-   currently_reading_book.save()
-   currently_reading_book_activity = CurrentlyReadingActivity(book=book, initiator=user)
-   currently_reading_book_activity.save()
+   currently_reading.save()
+   currently_reading_activity = CurrentlyReadingActivity(book=book, initiator=user)
+   currently_reading_activity.save()
+   currently_reading_activity_wrapper = ActivityWrapper(initiator=user,  currently_reading_activity=currently_reading_activity,
+                                                      datetime=currently_reading_activity.activity_datetime)
+   currently_reading_activity_wrapper.save()
 
 def handle_read(user, book):
    if WantToReadBook.objects.filter(book_id=book.id, user_id=user.id).exists():
@@ -165,8 +170,11 @@ def handle_read(user, book):
    read_book, is_created = ReadBook.objects.get_or_create(book_id = book.id, user_id = user.id,
                                               defaults={'read_date' : datetime.today()})
    read_book.save()
-   read_book_activity = ReadActivity(book=book, initiator=user)
-   read_book_activity.save()
+   read_activity = ReadActivity(book=book, initiator=user)
+   read_activity.save()
+   read_activity_wrapper = ActivityWrapper(initiator=user, read_activity = read_activity,
+                                           datetime = read_activity.activity_datetime)
+   read_activity_wrapper.save()
 
 def handle_reset(user, book):
    if WantToReadBook.objects.filter(book_id=book.id, user_id=user.id).exists():
@@ -176,6 +184,7 @@ def handle_reset(user, book):
    if ReadBook.objects.filter(book_id=book.id, user_id=user.id).exists():
       ReadBook.objects.filter(book_id=book.id, user_id=user.id).delete()
 
+@login_required(login_url='/login/')
 def handle_book_review(request, slug):
    user = request.user
    book = Book.objects.get(slug=slug)
@@ -198,6 +207,9 @@ def handle_book_review(request, slug):
 
       rating_activity = RatingActivity(initiator=user, book=book, stars=stars)
       rating_activity.save()
+      rating_activity_wrapper = ActivityWrapper(initiator=user, rating_activity = rating_activity,
+                                                datetime = rating_activity.activity_datetime)
+      rating_activity_wrapper.save()
 
       handle_read(user, book)
       messages.success(request, f'You rated {book.title} with {stars} stars!')

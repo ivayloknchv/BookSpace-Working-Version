@@ -26,4 +26,11 @@
     {% endfor %}
 </div>
 
+<div class="recent-activities">
+<h2>Browse recent activities from people you follow: </h2>
+{% for activity in activities %}
+{{ activity.display_activity }}
+{% endfor %}
+</div>
+
 {% endblock %}

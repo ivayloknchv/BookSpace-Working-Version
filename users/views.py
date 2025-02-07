@@ -8,10 +8,12 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, logout, authenticate, update_session_auth_hash
 from .forms import (MyLoginForm, MyUpdatePictureForm, MySignupForm, MySignupGenresForm, MyEditProfileForm,
                     MyPasswordChangeForm, MyChangeGenresForm)
-from activities.models import FollowActivity
+from activities.models import FollowActivity, ActivityWrapper
+
 
 BOOKS_PER_PAGE = 10
 ACCOUNTS_PER_PAGE = 20
+RECENT_ACTIVITIES = 20
 
 def signup_(request):
     if request.method == 'POST':
@@ -73,8 +75,12 @@ def view_profile(request, username):
     is_followed = FollowRelation.objects.filter(follower=request.user,followed=user).exists()
     following_count = FollowRelation.objects.filter(follower=user).count()
     followers_count = FollowRelation.objects.filter(followed=user).count()
+
+    activities = ActivityWrapper.objects.filter(initiator=user).order_by('-datetime')[:RECENT_ACTIVITIES]
+
     return render(request, 'user.html', {'user' : user, 'is_followed' : is_followed,
-                   'following_count' : following_count, 'followers_count' :  followers_count})
+                   'following_count' : following_count, 'followers_count' :  followers_count,
+                                                    'activities' : activities})
 
 @login_required(login_url='/login/')
 def edit_profile(request):
@@ -150,6 +156,9 @@ def follow_user(request, username):
     follow_relation.save()
     follow_activity = FollowActivity(initiator=follower, followed_user=followed)
     follow_activity.save()
+    follow_activity_wrapper = ActivityWrapper(initiator=follower, follow_activity=follow_activity,
+                                              datetime=follow_activity.activity_datetime)
+    follow_activity_wrapper.save()
     return redirect(request.META.get('HTTP_REFERER', '/'))
 
 @login_required(login_url='/login/')
