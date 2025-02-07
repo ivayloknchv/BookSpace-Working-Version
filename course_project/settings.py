@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     'homepage',
     'search',
     'activities',
+    'forum'
 ]
 
 MIDDLEWARE = [

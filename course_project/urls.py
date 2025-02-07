@@ -24,5 +24,6 @@ urlpatterns = [
     path('', include('users.urls')),
     path('', include('books_database.urls')),
     path('', include('search.urls')),
+    path('', include('forum.urls')),
     path('admin/', admin.site.urls),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

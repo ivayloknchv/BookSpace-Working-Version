@@ -25,7 +25,7 @@
                             <li><a href="{% url 'genres' %}">Browse Genres</a></li>
                         </ul>
                     </li>
-                    <li><a href="#">Forum</a></li>
+                    <li><a href="{% url 'forum_homepage' %}">Forum</a></li>
                 </ul>
                 <form class="navbar-form navbar-left" method="GET" action="{% url 'search' %}">
                     {% csrf_token %}
