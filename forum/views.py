@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
-from forum.models import Category
+from forum.models import Category, Thread
 
 
 @login_required(login_url='/login/')

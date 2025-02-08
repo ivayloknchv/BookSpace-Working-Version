@@ -144,8 +144,8 @@ def handle_want_to_read(user, book):
    want_to_read_book.save()
    want_to_read_activity = WantToReadActivity(book=book, initiator=user)
    want_to_read_activity.save()
-   want_to_read_activity_wrapper = ActivityWrapper(initiator=user, want_to_read_activity = want_to_read_activity,
-                                                   datetime=want_to_read_activity.activity_datetime)
+   want_to_read_activity_wrapper = ActivityWrapper(initiator=user,
+                                                   want_to_read_activity = want_to_read_activity)
    want_to_read_activity_wrapper.save()
 
 def handle_currently_reading(user, book):
@@ -158,8 +158,8 @@ def handle_currently_reading(user, book):
    currently_reading.save()
    currently_reading_activity = CurrentlyReadingActivity(book=book, initiator=user)
    currently_reading_activity.save()
-   currently_reading_activity_wrapper = ActivityWrapper(initiator=user,  currently_reading_activity=currently_reading_activity,
-                                                      datetime=currently_reading_activity.activity_datetime)
+   currently_reading_activity_wrapper = ActivityWrapper(initiator=user,
+                                                        currently_reading_activity=currently_reading_activity)
    currently_reading_activity_wrapper.save()
 
 def handle_read(user, book):
@@ -172,8 +172,7 @@ def handle_read(user, book):
    read_book.save()
    read_activity = ReadActivity(book=book, initiator=user)
    read_activity.save()
-   read_activity_wrapper = ActivityWrapper(initiator=user, read_activity = read_activity,
-                                           datetime = read_activity.activity_datetime)
+   read_activity_wrapper = ActivityWrapper(initiator=user, read_activity = read_activity)
    read_activity_wrapper.save()
 
 def handle_reset(user, book):
@@ -207,8 +206,7 @@ def handle_book_review(request, slug):
 
       rating_activity = RatingActivity(initiator=user, book=book, stars=stars)
       rating_activity.save()
-      rating_activity_wrapper = ActivityWrapper(initiator=user, rating_activity = rating_activity,
-                                                datetime = rating_activity.activity_datetime)
+      rating_activity_wrapper = ActivityWrapper(initiator=user, rating_activity = rating_activity)
       rating_activity_wrapper.save()
 
       handle_read(user, book)

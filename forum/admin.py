@@ -1,5 +1,5 @@
 from django.contrib import admin
-from forum.models import Category
+from forum.models import Category, Thread, Post
 
 
 class CategoryAdmin(admin.ModelAdmin):
@@ -9,4 +9,20 @@ class CategoryAdmin(admin.ModelAdmin):
     list_display = ('name', 'description', 'slug')
 
 
+class ThreadAdmin(admin.ModelAdmin):
+    model = Thread
+    ordering = ('title', 'category', 'author', 'created_datetime', 'slug')
+    fields = ('title', 'category', 'author', 'created_datetime', 'slug')
+    list_display = ('title', 'category', 'author', 'created_datetime', 'slug')
+
+
+class PostAdmin(admin.ModelAdmin):
+    model = Post
+    ordering = ('author', 'thread', 'post_datetime', 'content')
+    fields = ('author', 'thread', 'post_datetime', 'content')
+    list_display = ('author', 'thread', 'post_datetime', 'content')
+
+
 admin.site.register(Category, CategoryAdmin)
+admin.site.register(Thread, ThreadAdmin)
+admin.site.register(Post, PostAdmin)

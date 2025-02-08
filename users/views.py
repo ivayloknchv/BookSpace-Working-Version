@@ -156,8 +156,7 @@ def follow_user(request, username):
     follow_relation.save()
     follow_activity = FollowActivity(initiator=follower, followed_user=followed)
     follow_activity.save()
-    follow_activity_wrapper = ActivityWrapper(initiator=follower, follow_activity=follow_activity,
-                                              datetime=follow_activity.activity_datetime)
+    follow_activity_wrapper = ActivityWrapper(initiator=follower, follow_activity=follow_activity)
     follow_activity_wrapper.save()
     return redirect(request.META.get('HTTP_REFERER', '/'))
 

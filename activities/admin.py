@@ -5,37 +5,37 @@ from .models import (FollowActivity, WantToReadActivity,
 
 class FollowActivityAdmin(admin.ModelAdmin):
     model = FollowActivity
-    ordering = ('initiator', 'activity_datetime', 'followed_user')
-    fields = ('initiator', 'activity_datetime', 'followed_user')
-    list_display = ('initiator', 'activity_datetime', 'followed_user')
+    ordering = ('initiator', 'followed_user')
+    fields = ('initiator', 'followed_user')
+    list_display = ('initiator', 'followed_user')
 
 
 class WantToReadActivityAdmin(admin.ModelAdmin):
     model = WantToReadActivity
-    ordering = ('initiator', 'activity_datetime', 'book')
-    fields = ('initiator', 'activity_datetime', 'book')
-    list_display = ('initiator', 'activity_datetime', 'book')
+    ordering = ('initiator', 'book')
+    fields = ('initiator', 'book')
+    list_display = ('initiator', 'book')
 
 
 class CurrentlyReadingActivityAdmin(admin.ModelAdmin):
     model = CurrentlyReadingActivity
-    ordering = ('initiator', 'activity_datetime', 'book')
-    fields = ('initiator', 'activity_datetime', 'book')
-    list_display = ('initiator', 'activity_datetime', 'book')
+    ordering = ('initiator', 'book')
+    fields = ('initiator', 'book')
+    list_display = ('initiator', 'book')
 
 
 class ReadActivityAdmin(admin.ModelAdmin):
     model = ReadActivity
-    ordering = ('initiator', 'activity_datetime', 'book')
-    fields = ('initiator', 'activity_datetime', 'book')
-    list_display = ('initiator', 'activity_datetime', 'book')
+    ordering = ('initiator', 'book')
+    fields = ('initiator', 'book')
+    list_display = ('initiator', 'book')
 
 
 class RatingActivityAdmin(admin.ModelAdmin):
     model = RatingActivity
-    ordering = ('initiator', 'activity_datetime', 'book', 'stars')
-    fields = ('initiator', 'activity_datetime', 'book', 'stars')
-    list_display = ('initiator', 'activity_datetime', 'book', 'stars')
+    ordering = ('initiator', 'book', 'stars')
+    fields = ('initiator', 'book', 'stars')
+    list_display = ('initiator', 'book', 'stars')
 
 
 class ActivityWrapperAdmin(admin.ModelAdmin):
