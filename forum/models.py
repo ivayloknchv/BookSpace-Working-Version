@@ -45,7 +45,7 @@ class Post(models.Model):
     author = models.ForeignKey('users.User', on_delete=models.CASCADE)
     thread = models.ForeignKey(Thread, on_delete=models.CASCADE)
     post_datetime = models.DateTimeField(auto_now_add=True)
-    content = models.CharField(max_length=1024)
+    caption = models.TextField(max_length=2048)
 
     class Meta:
         verbose_name_plural = 'Posts'

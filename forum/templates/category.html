@@ -2,5 +2,12 @@
 {% block title %}{{ category.name }}{% endblock %}
 {% block content %}
 
+<p><a href="{% url 'forum_homepage' %}">Back to forum homepage</a></p>
 <h2>Discover all thread under the {{ category.name }} category</h2>
+
+<form method="post" action="{% url 'create_thread' category.slug %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary">Create New Thread</button>
+    </form>
+
 {% endblock %}

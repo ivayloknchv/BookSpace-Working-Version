@@ -18,9 +18,9 @@ class ThreadAdmin(admin.ModelAdmin):
 
 class PostAdmin(admin.ModelAdmin):
     model = Post
-    ordering = ('author', 'thread', 'post_datetime', 'content')
-    fields = ('author', 'thread', 'post_datetime', 'content')
-    list_display = ('author', 'thread', 'post_datetime', 'content')
+    ordering = ('author', 'thread', 'post_datetime', 'caption')
+    fields = ('author', 'thread', 'post_datetime', 'caption')
+    list_display = ('author', 'thread', 'post_datetime', 'caption')
 
 
 admin.site.register(Category, CategoryAdmin)

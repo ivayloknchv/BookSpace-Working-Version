@@ -1,6 +1,6 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm, PasswordChangeForm, AuthenticationForm
 from .models import User
+from django.contrib.auth.forms import UserCreationForm, PasswordChangeForm, AuthenticationForm
 
 
 DISPLAYED_GENRE_CHOICES = [
@@ -14,6 +14,7 @@ DISPLAYED_GENRE_CHOICES = [
     ('Religion', 'Religion'), ('Romance', 'Romance'), ('Science Fiction', 'Science Fiction'),
     ('Thriller', 'Thriller'), ('Young Adult', 'Young Adult'),
 ]
+
 
 class MyLoginForm(AuthenticationForm):
     class Meta:

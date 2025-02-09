@@ -1,0 +1,16 @@
+{% extends "master.html" %}
+{% block title %} Create New Thread{% endblock %}
+{% block content %}
+
+<h2>Create a new thread in {{ category.name }} category</h2>
+
+<form action="{% url 'save_thread' category.slug %}" method="post" class="p-4 border rounded shadow bg-light">
+    <div class="mb-3">
+        {% csrf_token %}
+        {{ form.as_p }}
+    </div>
+    <button type="submit" class="btn btn-primary">Create Thread</button>
+</form>
+
+
+{% endblock %}
