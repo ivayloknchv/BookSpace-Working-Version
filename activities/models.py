@@ -18,6 +18,14 @@ class ActivityBase(models.Model):
 class ActivityBook(ActivityBase):
 
     book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name='book_%(class)s')
+
+    class Meta:
+        abstract = True
+
+
+class ForumActivity(ActivityBase):
+    thread = models.ForeignKey('forum.Thread', on_delete=models.CASCADE, related_name='thread_%(class)s')
+
     class Meta:
         abstract = True
 
@@ -38,6 +46,24 @@ class FollowActivity(ActivityBase):
 
     def __str__(self):
         return f'{self.initiator} followed {self.followed_user}'
+
+
+
+class NewThreadActivity(ForumActivity):
+
+    class Meta:
+        verbose_name_plural = "New Thread Activities"
+
+    def display_activity(self):
+        initiator_url = reverse('profile', args=[self.initiator.username])
+        thread_url = reverse('view_thread', args=[self.thread.slug])
+        result_str = (f'<b><a href = "{initiator_url}">{self.initiator}</a></b> created a '
+                      f'new thread <b><a href = "{thread_url}">{self.thread}</a></b><br><br>')
+        return result_str
+
+    def __str__(self):
+        return f'{self.initiator} created a new thread {self.thread}'
+
 
 
 class WantToReadActivity(ActivityBook):
@@ -109,6 +135,7 @@ class ActivityWrapper(models.Model):
     initiator = models.ForeignKey('users.User', on_delete=models.CASCADE)
     datetime = models.DateTimeField(auto_now_add=True)
     follow_activity = models.ForeignKey(FollowActivity, on_delete=models.CASCADE, null=True, blank=True)
+    new_thread_activity = models.ForeignKey(NewThreadActivity, on_delete=models.CASCADE, null=True, blank=True)
     want_to_read_activity = models.ForeignKey(WantToReadActivity, on_delete=models.CASCADE, null=True, blank=True)
     currently_reading_activity = models.ForeignKey(CurrentlyReadingActivity, on_delete=models.CASCADE, null=True, blank=True)
     read_activity = models.ForeignKey(ReadActivity, on_delete=models.CASCADE, null=True, blank=True)
@@ -117,15 +144,19 @@ class ActivityWrapper(models.Model):
     def display_activity(self):
         datetime_display = self.datetime.strftime('%d.%m.%Y %H:%M')
         activity_string = None
+
         if self.follow_activity:
             activity_string = self.follow_activity.display_activity()
-        if self.want_to_read_activity:
+        elif self.new_thread_activity:
+            activity_string = self.new_thread_activity.display_activity()
+        elif self.want_to_read_activity:
             activity_string = self.want_to_read_activity.display_activity()
-        if self.currently_reading_activity:
+        elif self.currently_reading_activity:
             activity_string = self.currently_reading_activity.display_activity()
-        if self.read_activity:
+        elif self.read_activity:
             activity_string = self.read_activity.display_activity()
-        if self.rating_activity:
+        elif self.rating_activity:
             activity_string = self.rating_activity.display_activity()
+
         final_string = mark_safe(f'{datetime_display}<br>{activity_string}')
         return final_string

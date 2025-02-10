@@ -170,10 +170,12 @@ def handle_read(user, book):
    read_book, is_created = ReadBook.objects.get_or_create(book_id = book.id, user_id = user.id,
                                               defaults={'read_date' : datetime.today()})
    read_book.save()
-   read_activity = ReadActivity(book=book, initiator=user)
-   read_activity.save()
-   read_activity_wrapper = ActivityWrapper(initiator=user, read_activity = read_activity)
-   read_activity_wrapper.save()
+
+   if is_created:
+      read_activity = ReadActivity(book=book, initiator=user)
+      read_activity.save()
+      read_activity_wrapper = ActivityWrapper(initiator=user, read_activity = read_activity)
+      read_activity_wrapper.save()
 
 def handle_reset(user, book):
    if WantToReadBook.objects.filter(book_id=book.id, user_id=user.id).exists():

@@ -1,0 +1,12 @@
+{% extends "master.html" %}
+{% block title %} {{ thread.title }} {% endblock %}
+{% block content %}
+{% if messages %}
+<ul class="messages" style="list-style-type: none; padding: 0; margin: 0; text-align: center">
+    {% for message in messages %}
+    <li class="alert alert-info" role="alert">{{ message }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+<h1>{{ thread.title }}</h1>
+{% endblock %}

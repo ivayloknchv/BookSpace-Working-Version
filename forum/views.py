@@ -1,7 +1,8 @@
 from django.contrib import messages
+from forum.forms import CreateThreadForm
 from django.shortcuts import render, redirect
 from forum.models import Category, Post, Thread
-from forum.forms import CreateThreadForm
+from activities.models import NewThreadActivity, ActivityWrapper
 from django.contrib.auth.decorators import login_required
 
 
@@ -37,6 +38,14 @@ def save_thread(request, slug):
             thread.save()
             post = Post(author=user, thread=thread, caption=caption)
             post.save()
+            new_thread_activity = NewThreadActivity(initiator=user, thread=thread)
+            new_thread_activity.save()
+            new_thread_activity_wrapper = ActivityWrapper(initiator=user, new_thread_activity=new_thread_activity)
+            new_thread_activity_wrapper.save()
             messages.success(request, 'Successfully created a new thread in the forum')
-    #todo: redirect to the thread page, display all threads by categories
-    return redirect('forum_homepage')
+            return redirect('view_thread', slug=thread.slug)
+
+@login_required(login_url='/login/')
+def view_thread(request, slug):
+    thread = Thread.objects.get(slug=slug)
+    return render(request, 'thread.html', {'thread' : thread })
