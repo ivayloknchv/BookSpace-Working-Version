@@ -216,6 +216,7 @@ def handle_book_review(request, slug):
 
    return redirect('book', slug)
 
+@login_required(login_url='/login/')
 def remove_review(request, slug):
    user = request.user
    book = Book.objects.get(slug=slug)

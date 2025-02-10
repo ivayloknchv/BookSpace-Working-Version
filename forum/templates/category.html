@@ -1,13 +1,41 @@
 {% extends "master.html" %}
 {% block title %}{{ category.name }}{% endblock %}
 {% block content %}
-
 <p><a href="{% url 'forum_homepage' %}">Back to forum homepage</a></p>
 <h2>Discover all thread under the {{ category.name }} category</h2>
-
 <form method="post" action="{% url 'create_thread' category.slug %}">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-primary">Create New Thread</button>
-    </form>
-
+    {% csrf_token %}
+    <button type="submit" class="btn btn-primary">Create New Thread</button>
+</form>
+<div class="threads-container">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Posts</th>
+                <th>Latest Activity</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for thread in current_page %}
+            <tr>
+                <td><a href="{% url 'view_thread' thread.slug %}">{{ thread.title }}</a></td>
+                <td><a href="{% url 'profile' user.username %}">{{ thread.author }}</a></td>
+                <td>{{ thread.posts_count }}</td>
+                <td>{{ thread.latest_post_time }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<div class="page-iteration" style="text-align: center;">
+    {% if current_page.has_previous %}
+    <a href="{% url 'show_category' category.slug %}?page={{ current_page.previous_page_number }}">Previous Page</a>
+    <br>
+    {% endif %}
+    {% if current_page.has_next %}
+    <a href="{% url 'show_category' category.slug %}?page={{ current_page.next_page_number }}">Next Page</a>
+    {% endif %}
+</div>
 {% endblock %}

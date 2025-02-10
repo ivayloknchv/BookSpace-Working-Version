@@ -10,6 +10,7 @@
             <tr>
                 <th>Category</th>
                 <th>Description</th>
+                <th>Threads</th>
             </tr>
         </thead>
         <tbody>
@@ -17,9 +18,19 @@
             <tr>
                 <td><a href="{% url 'show_category' category.slug %}">{{ category.name }}</a></td>
                 <td>{{ category.description }}</td>
+                <td>{{ category.threads_count }}</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
 </div>
+
+
+<div class="recent-activities">
+<h4>Recent Forum Activities: </h4>
+{% for activity in recent_activities %}
+{{ activity.display_activity }}
+{% endfor %}
+</div>
+
 {% endblock %}

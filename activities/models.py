@@ -48,7 +48,6 @@ class FollowActivity(ActivityBase):
         return f'{self.initiator} followed {self.followed_user}'
 
 
-
 class NewThreadActivity(ForumActivity):
 
     class Meta:
@@ -64,6 +63,21 @@ class NewThreadActivity(ForumActivity):
     def __str__(self):
         return f'{self.initiator} created a new thread {self.thread}'
 
+
+class NewPostActivity(ForumActivity):
+
+    class Meta:
+        verbose_name_plural = "New Post Activities"
+
+    def display_activity(self):
+        initiator_url = reverse('profile', args=[self.initiator.username])
+        thread_url = reverse('view_thread', args=[self.thread.slug])
+        result_str = (f'<b><a href = "{initiator_url}">{self.initiator}</a></b> posted in '
+                      f'<b><a href = "{thread_url}">{self.thread}</a></b><br><br>')
+        return result_str
+
+    def __str__(self):
+        return f'{self.initiator} posted in {self.thread}'
 
 
 class WantToReadActivity(ActivityBook):
@@ -137,6 +151,7 @@ class ActivityWrapper(models.Model):
     follow_activity = models.ForeignKey(FollowActivity, on_delete=models.CASCADE, null=True, blank=True)
     new_thread_activity = models.ForeignKey(NewThreadActivity, on_delete=models.CASCADE, null=True, blank=True)
     want_to_read_activity = models.ForeignKey(WantToReadActivity, on_delete=models.CASCADE, null=True, blank=True)
+    new_post_activity = models.ForeignKey(NewPostActivity, on_delete=models.CASCADE, null=True, blank=True)
     currently_reading_activity = models.ForeignKey(CurrentlyReadingActivity, on_delete=models.CASCADE, null=True, blank=True)
     read_activity = models.ForeignKey(ReadActivity, on_delete=models.CASCADE, null=True, blank=True)
     rating_activity = models.ForeignKey(RatingActivity, on_delete=models.CASCADE, null=True, blank=True)
@@ -149,6 +164,8 @@ class ActivityWrapper(models.Model):
             activity_string = self.follow_activity.display_activity()
         elif self.new_thread_activity:
             activity_string = self.new_thread_activity.display_activity()
+        elif self.new_post_activity:
+            activity_string = self.new_post_activity.display_activity()
         elif self.want_to_read_activity:
             activity_string = self.want_to_read_activity.display_activity()
         elif self.currently_reading_activity:
