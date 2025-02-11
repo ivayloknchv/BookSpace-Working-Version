@@ -52,3 +52,15 @@ class Post(models.Model):
 
     def __str__(self):
         return f'{self.pk}'
+
+
+class LikeRelation(models.Model):
+    user = models.ForeignKey('users.User', on_delete=models.CASCADE)
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    like_datetime = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name_plural = 'Like Relations'
+
+    def __str__(self):
+        return f'{self.user} like {self.post.author}\'s post in {self.post.thread}'

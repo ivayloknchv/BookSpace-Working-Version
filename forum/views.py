@@ -1,16 +1,17 @@
+from django.urls import reverse
 from django.contrib import messages
 from django.db.models import Max, Count
 from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
-from forum.models import Category, Post, Thread
-from django.contrib.auth.decorators import login_required
 from forum.forms import CreateThreadForm, ThreadReplyForm
+from django.contrib.auth.decorators import login_required
+from forum.models import Category, Post, Thread, LikeRelation
 from activities.models import NewThreadActivity, NewPostActivity, ActivityWrapper
 
 
 RECENT_FORUM_ACTIVITIES = 50
 THREADS_PER_PAGE = 20
-POSTS_PER_PAGE = 20
+POSTS_PER_PAGE = 2
 
 
 def get_recent_forum_activities():
@@ -94,11 +95,20 @@ def add_reply(request, slug):
             new_post_activity_wrapper = ActivityWrapper(initiator=user,new_post_activity=new_post_activity)
             new_post_activity_wrapper.save()
             messages.success(request, f'Successfully posted in {thread}')
+
+            #redirect the user to the last page where they can see their post
             posts = Post.objects.filter(thread=thread).order_by('post_datetime')
             posts_paginator = Paginator(posts, POSTS_PER_PAGE)
-            #redirect the user to the last page where they can see their post
             last_page = posts_paginator.num_pages
-            last_page = posts_paginator.get_page(last_page)
-            form = ThreadReplyForm()
-            return render(request, 'thread.html', {'thread': thread, 'current_page': last_page,
-                                            'form': form})
+            return redirect(f"{reverse('view_thread', args=[slug])}?page={last_page}")
+
+    return redirect('view_thread', slug=thread.slug)\
+
+@login_required(login_url='/login/')
+def like_post(request, pk):
+    user = request.user
+    post = Post.objects.get(pk=pk)
+    like = LikeRelation(user=user, post=post)
+    like.save()
+    messages.success(request, 'Successfully liked a post in the thread!')
+    return redirect(request.META.get('HTTP_REFERER', '/'))

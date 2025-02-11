@@ -1,5 +1,5 @@
 from django.contrib import admin
-from forum.models import Category, Thread, Post
+from forum.models import Category, Thread, Post, LikeRelation
 
 
 class CategoryAdmin(admin.ModelAdmin):
@@ -23,6 +23,14 @@ class PostAdmin(admin.ModelAdmin):
     list_display = ('author', 'thread', 'post_datetime', 'caption')
 
 
+class LikeRelationAdmin(admin.ModelAdmin):
+    model = LikeRelation
+    ordering = ('user', 'post', 'like_datetime')
+    fields = ('user', 'post', 'like_datetime')
+    list_display = ('user', 'post', 'like_datetime')
+
+
 admin.site.register(Category, CategoryAdmin)
 admin.site.register(Thread, ThreadAdmin)
 admin.site.register(Post, PostAdmin)
+admin.site.register(LikeRelation, LikeRelationAdmin)
