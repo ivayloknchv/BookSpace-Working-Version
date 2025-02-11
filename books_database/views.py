@@ -9,6 +9,7 @@ from books_database.models import (Book, Genre, Author, WantToReadBook,
 from activities.models import (WantToReadActivity, CurrentlyReadingActivity, ReadActivity,
                                RatingActivity, ActivityWrapper)
 
+
 RECOMMENDATIONS_TO_SHOW = 12
 
 

@@ -7,4 +7,5 @@ urlpatterns = [
     path('forum/categories/<str:slug>/create_thread', views.create_thread, name='create_thread'),
     path('forum/categories/<str:slug>/save_thread', views.save_thread, name='save_thread'),
     path('forum/threads/<str:slug>', views.view_thread, name='view_thread'),
+    path('forum/threads/<str:slug>/add_reply', views.add_reply, name='add_reply'),
 ]

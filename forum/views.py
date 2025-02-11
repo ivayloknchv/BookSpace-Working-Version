@@ -1,21 +1,22 @@
-from django.db.models import Max, Count
 from django.contrib import messages
-from forum.forms import CreateThreadForm
+from django.db.models import Max, Count
 from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
 from forum.models import Category, Post, Thread
 from django.contrib.auth.decorators import login_required
+from forum.forms import CreateThreadForm, ThreadReplyForm
 from activities.models import NewThreadActivity, NewPostActivity, ActivityWrapper
 
 
 RECENT_FORUM_ACTIVITIES = 50
 THREADS_PER_PAGE = 20
+POSTS_PER_PAGE = 20
 
 
 def get_recent_forum_activities():
-    thread_activites = ActivityWrapper.objects.filter(new_thread_activity__isnull=False)
-    post_activites = ActivityWrapper.objects.filter(new_post_activity__isnull=False)
-    recent_activities = (thread_activites | post_activites).order_by('-datetime')[:RECENT_FORUM_ACTIVITIES]
+    thread_activities = ActivityWrapper.objects.filter(new_thread_activity__isnull=False)
+    post_activities = ActivityWrapper.objects.filter(new_post_activity__isnull=False)
+    recent_activities = (thread_activities | post_activities).order_by('-datetime')[:RECENT_FORUM_ACTIVITIES]
     return recent_activities
 
 @login_required(login_url='/login/')
@@ -27,20 +28,21 @@ def show_forum_homepage(request):
 
 @login_required(login_url='/login/')
 def show_category(request, slug):
-    category = Category.objects.get(slug=slug)
-    threads = (Thread.objects.filter(category=category).annotate(latest_post_time=Max('post__post_datetime'),
+    current_category = Category.objects.get(slug=slug)
+    threads = (Thread.objects.filter(category=current_category).annotate(latest_post_time=Max('post__post_datetime'),
                                        posts_count=Count('post')).order_by('-latest_post_time'))
     threads_paginator = Paginator(threads, THREADS_PER_PAGE)
     page_num = request.GET.get('page', 1)
     current_page = threads_paginator.get_page(page_num)
-    return render(request, 'category.html', { 'category' : category,
+    return render(request, 'category.html', { 'category' : current_category,
                                               'current_page' : current_page })
 
 @login_required(login_url='/login/')
 def create_thread(request, slug):
-    category = Category.objects.get(slug=slug)
+    thread_category = Category.objects.get(slug=slug)
     form = CreateThreadForm()
-    return render(request, 'create_thread.html', { 'category' : category, 'form' : form })
+    return render(request, 'create_thread.html', { 'thread_category' : thread_category,
+                                                   'form' : form })
 
 @login_required(login_url='/login/')
 def save_thread(request, slug):
@@ -67,4 +69,36 @@ def save_thread(request, slug):
 @login_required(login_url='/login/')
 def view_thread(request, slug):
     thread = Thread.objects.get(slug=slug)
-    return render(request, 'thread.html', {'thread' : thread })
+    posts = Post.objects.filter(thread=thread).order_by('post_datetime')
+    posts_paginator = Paginator(posts, POSTS_PER_PAGE)
+    page_num = request.GET.get('page', 1)
+    current_page = posts_paginator.get_page(page_num)
+    form = ThreadReplyForm()
+    return render(request, 'thread.html', {'thread' : thread, 'current_page' : current_page,
+                                           'form' : form })
+
+@login_required(login_url='/login/')
+def add_reply(request, slug):
+    user = request.user
+    thread = Thread.objects.get(slug=slug)
+
+    if request.method == 'POST':
+        form = ThreadReplyForm(request.POST)
+
+        if form.is_valid():
+            caption = form.cleaned_data['caption']
+            post = Post(author=user, caption=caption, thread=thread)
+            post.save()
+            new_post_activity = NewPostActivity(initiator=user, thread=thread)
+            new_post_activity.save()
+            new_post_activity_wrapper = ActivityWrapper(initiator=user,new_post_activity=new_post_activity)
+            new_post_activity_wrapper.save()
+            messages.success(request, f'Successfully posted in {thread}')
+            posts = Post.objects.filter(thread=thread).order_by('post_datetime')
+            posts_paginator = Paginator(posts, POSTS_PER_PAGE)
+            #redirect the user to the last page where they can see their post
+            last_page = posts_paginator.num_pages
+            last_page = posts_paginator.get_page(last_page)
+            form = ThreadReplyForm()
+            return render(request, 'thread.html', {'thread': thread, 'current_page': last_page,
+                                            'form': form})

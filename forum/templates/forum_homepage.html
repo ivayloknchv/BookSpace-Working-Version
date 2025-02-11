@@ -4,7 +4,7 @@
 <h2>Communicate with other BookSpace users in our forum!</h2>
 <br>
 <div class="categories">
-    <h4>Choose one of the following categories in the forum: </h4>
+    <h4>Browse all categories in the forum: </h4>
     <table class="table">
         <thead>
             <tr>
@@ -24,13 +24,12 @@
         </tbody>
     </table>
 </div>
-
-
 <div class="recent-activities">
-<h4>Recent Forum Activities: </h4>
-{% for activity in recent_activities %}
-{{ activity.display_activity }}
-{% endfor %}
+    <h4>Recent Forum Activities: </h4>
+    {% for activity in recent_activities %}
+    <div class="list-group-item list-group-item-action" style="text-align : center">
+        {{ activity.display_activity }}
+    </div>
+    {% endfor %}
 </div>
-
 {% endblock %}
