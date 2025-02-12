@@ -13,7 +13,7 @@ class Genre(models.Model):
         return self.name
 
     def get_absolute_url(self):
-        return reverse("genre_detail", kwargs={"slug": self.slug})
+        return reverse('preview_genre', kwargs={'slug': self.slug})
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -29,7 +29,7 @@ class Author(models.Model):
         return self.name
 
     def get_absolute_url(self):
-        return reverse("author_detail", kwargs={"slug": self.slug})
+        return reverse('preview_author', kwargs={'slug': self.slug})
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -51,7 +51,7 @@ class Book(models.Model):
         return f'{self.title} by {self.author}'
 
     def get_absolute_url(self):
-        return reverse("book_detail", kwargs={"slug": self.slug})
+        return reverse('book', kwargs={'slug' : self.slug})
 
     def save(self, *args, **kwargs):
         if not self.slug:
