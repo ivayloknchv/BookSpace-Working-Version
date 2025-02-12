@@ -53,6 +53,14 @@ class Post(models.Model):
     def __str__(self):
         return f'{self.pk}'
 
+    @property
+    def likes_count(self):
+        return LikeRelation.objects.filter(post=self).count()
+
+    @property
+    def liked_by(self):
+        return LikeRelation.objects.filter(post=self).order_by('-like_datetime')
+
 
 class LikeRelation(models.Model):
     user = models.ForeignKey('users.User', on_delete=models.CASCADE)

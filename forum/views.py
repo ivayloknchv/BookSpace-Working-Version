@@ -11,7 +11,7 @@ from activities.models import NewThreadActivity, NewPostActivity, ActivityWrappe
 
 RECENT_FORUM_ACTIVITIES = 50
 THREADS_PER_PAGE = 20
-POSTS_PER_PAGE = 2
+POSTS_PER_PAGE = 20
 
 
 def get_recent_forum_activities():
@@ -74,9 +74,13 @@ def view_thread(request, slug):
     posts_paginator = Paginator(posts, POSTS_PER_PAGE)
     page_num = request.GET.get('page', 1)
     current_page = posts_paginator.get_page(page_num)
+
+    liked_posts_pks = set(LikeRelation.objects.filter(user=request.user, post__in=current_page.object_list).
+                          values_list('post_id', flat=True))
+
     form = ThreadReplyForm()
     return render(request, 'thread.html', {'thread' : thread, 'current_page' : current_page,
-                                           'form' : form })
+                                           'liked_posts_pks' : liked_posts_pks,'form' : form })
 
 @login_required(login_url='/login/')
 def add_reply(request, slug):
@@ -111,4 +115,15 @@ def like_post(request, pk):
     like = LikeRelation(user=user, post=post)
     like.save()
     messages.success(request, 'Successfully liked a post in the thread!')
+    return redirect(request.META.get('HTTP_REFERER', '/'))
+
+@login_required(login_url='/login/')
+def unlike_post(request, pk):
+    user = request.user
+    post = Post.objects.get(pk=pk)
+
+    if LikeRelation.objects.filter(user=user, post=post).exists():
+        LikeRelation.objects.get(user=user, post=post).delete()
+        messages.success(request, 'Successfully unliked a post in the thread!')
+
     return redirect(request.META.get('HTTP_REFERER', '/'))

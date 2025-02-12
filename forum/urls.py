@@ -9,4 +9,5 @@ urlpatterns = [
     path('forum/threads/<str:slug>/', views.view_thread, name='view_thread'),
     path('forum/threads/<str:slug>/add_reply/', views.add_reply, name='add_reply'),
     path('forum/like/<int:pk>/', views.like_post, name='like_post'),
+    path('forum/unlike/<int:pk>/', views.unlike_post, name='unlike_post'),
 ]
