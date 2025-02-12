@@ -6,10 +6,9 @@ class UserAdmin(admin.ModelAdmin):
     model = User
     ordering = ('first_name', 'last_name', 'username')
     fields = ('first_name', 'last_name', 'username', 'email', 'password', 'is_superuser',
-              'profile_picture', 'joined_date', 'level', 'xp', 'preferred_genres')
+              'profile_picture', 'joined_date', 'preferred_genres')
     list_display = ('first_name', 'last_name', 'username', 'email', 'password',
-                    'is_superuser', 'profile_picture', 'joined_date', 'level',
-                    'xp', 'preferred_genres_list')
+                    'is_superuser', 'profile_picture', 'joined_date', 'preferred_genres_list')
 
     @staticmethod
     def preferred_genres_list(user):

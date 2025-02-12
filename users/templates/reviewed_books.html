@@ -3,11 +3,44 @@
 {% block content %}
 <p><a href="{% url 'profile' user.username %}">Back to profile</a></p>
 <div class="reviewed-books-container">
-    <h2>Read Books</h2>
+    <h2>Reviewed Books</h2>
     {% if user.pk == request.user.pk %}
     <p>Your Book Reviews:</p>
     {% else %}
     <p>{{ user.first_name }}'s Book Reviews:</p>
+    {% endif %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Book Cover</th>
+                <th>Book Title</th>
+                <th>Author</th>
+                <th>{{user.first_name}}'s Review</th>
+                <th>Review Date</th>
+                <th>Average Review</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for reviewed_book in reviewed_books_page %}
+            <tr>
+                <td><img src="{{ reviewed_book.book.cover_url }}" height="60" width="40"></td>
+                <td><a href="{% url 'book' reviewed_book.book.slug %}">{{ reviewed_book.book.title }}</a></td>
+                <td><a href="{% url 'preview_author' reviewed_book.book.author.slug %}">{{ reviewed_book.book.author }}</a></td>
+                <td>{{ reviewed_book.review_score }}</td>
+                <td>{{ reviewed_book.review_date }}</td>
+                <td>{{ reviewed_book.book.avg_review }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<div class="page-iteration" style="text-align: center;">
+    {% if reviewed_books_page.has_previous %}
+    <a href="{% url 'reviewed_books' user.username %}?page={{ reviewed_books_page.previous_page_number }}">Previous Page</a>
+    <br>
+    {% endif %}
+    {% if reviewed_books_page.has_next %}
+    <a href="{% url 'reviewed_books' user.username %}?page={{ reviewed_books_page.next_page_number }}">Next Page</a>
     {% endif %}
 </div>
 {% endblock %}

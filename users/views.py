@@ -201,7 +201,7 @@ def want_to_read_books(request, username):
 @login_required(login_url='/login/')
 def reviewed_books(request, username):
     user = User.objects.get(username=username)
-    books = BookReview.objects.filter(review_user=user)
+    books = BookReview.objects.filter(review_user=user).order_by('-review_date')
     books_paginator = Paginator(books, BOOKS_PER_PAGE)
     page_num = request.GET.get('page', 1)
     reviewed_books_page = books_paginator.get_page(page_num)
