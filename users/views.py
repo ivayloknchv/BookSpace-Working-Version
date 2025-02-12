@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
 from users.models import User, FollowRelation
-from books_database.models import Genre, CurrentlyReadingBook, WantToReadBook, ReadBook
+from books_database.models import Genre, CurrentlyReadingBook, WantToReadBook, ReadBook, BookReview
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, logout, authenticate, update_session_auth_hash
 from .forms import (MyLoginForm, MyUpdatePictureForm, MySignupForm, MySignupGenresForm, MyEditProfileForm,
@@ -14,6 +14,7 @@ from activities.models import FollowActivity, ActivityWrapper
 BOOKS_PER_PAGE = 10
 ACCOUNTS_PER_PAGE = 20
 RECENT_ACTIVITIES = 20
+
 
 def signup_(request):
     if request.method == 'POST':
@@ -196,6 +197,16 @@ def want_to_read_books(request, username):
     want_to_read_page = books_paginator.get_page(page_num)
     return render(request, 'want_to_read_books.html',
                   {'user' : user, 'want_to_read_page' : want_to_read_page})
+
+@login_required(login_url='/login/')
+def reviewed_books(request, username):
+    user = User.objects.get(username=username)
+    books = BookReview.objects.filter(review_user=user)
+    books_paginator = Paginator(books, BOOKS_PER_PAGE)
+    page_num = request.GET.get('page', 1)
+    reviewed_books_page = books_paginator.get_page(page_num)
+    return render(request, 'reviewed_books.html',
+                  { 'user' : user, 'reviewed_books_page' : reviewed_books_page})
 
 @login_required(login_url='/login/')
 def view_followers(request, username):

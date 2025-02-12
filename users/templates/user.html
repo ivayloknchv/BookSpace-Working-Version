@@ -12,7 +12,6 @@
         <p><b>Username:</b> {{ user.username }}</p>
         <p><b>Join Date:</b> {{ user.joined_date }}</p>
         <p><b>Level:</b> {{ user.level }}</p>
-        <p><b>Favourite Genres:</b></p>
         <ul style="display : flex; list-style-type: none; padding: 0; margin: 0;">
             {% for genre in user.preferred_genres.all %}
             <li style="padding-right : 20px;"><a href = "{% url 'preview_genre' genre.slug %}">{{genre.name}}</a></li>
@@ -49,6 +48,7 @@
         <li><a href="{% url 'read_books' user.username %}">Read</a></li>
         <li><a href="{% url 'currently_reading_books' user.username %}">Currently Reading</a></li>
         <li><a href="{% url 'want_to_read_books' user.username %}">Want To Read</a></li>
+        <li><a href="{% url 'reviewed_books' user.username %}">Reviewed Books</a></li>
     </ul>
 </div>
 <div class="recent-activities">

@@ -1,6 +1,6 @@
 from django.contrib import admin
-from .models import (FollowActivity, NewThreadActivity, NewPostActivity, WantToReadActivity,
-                    CurrentlyReadingActivity, ReadActivity, RatingActivity, ActivityWrapper)
+from .models import (FollowActivity, NewThreadActivity, NewPostActivity, LikeActivity,
+                     WantToReadActivity, CurrentlyReadingActivity, ReadActivity, RatingActivity, ActivityWrapper)
 
 
 class FollowActivityAdmin(admin.ModelAdmin):
@@ -22,6 +22,13 @@ class NewPostActivityAdmin(admin.ModelAdmin):
     ordering = ('initiator', 'thread')
     fields = ('initiator', 'thread')
     list_display = ('initiator', 'thread')
+
+
+class LikeActivityAdmin(admin.ModelAdmin):
+    model = LikeActivity
+    ordering = ('initiator', 'author', 'thread')
+    fields = ('initiator', 'author', 'thread')
+    list_display = ('initiator', 'author', 'thread')
 
 
 class WantToReadActivityAdmin(admin.ModelAdmin):
@@ -65,6 +72,7 @@ class ActivityWrapperAdmin(admin.ModelAdmin):
 admin.site.register(FollowActivity, FollowActivityAdmin)
 admin.site.register(NewThreadActivity, NewThreadActivityAdmin)
 admin.site.register(NewPostActivity, NewPostActivityAdmin)
+admin.site.register(LikeActivity, LikeActivityAdmin)
 admin.site.register(WantToReadActivity, WantToReadActivityAdmin)
 admin.site.register(CurrentlyReadingActivity, CurrentlyReadingActivityAdmin)
 admin.site.register(ReadActivity, ReadActivityAdmin)

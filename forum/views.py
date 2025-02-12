@@ -6,18 +6,19 @@ from django.shortcuts import render, redirect
 from forum.forms import CreateThreadForm, ThreadReplyForm
 from django.contrib.auth.decorators import login_required
 from forum.models import Category, Post, Thread, LikeRelation
-from activities.models import NewThreadActivity, NewPostActivity, ActivityWrapper
+from activities.models import NewThreadActivity, NewPostActivity, LikeActivity, ActivityWrapper
 
 
-RECENT_FORUM_ACTIVITIES = 50
-THREADS_PER_PAGE = 20
 POSTS_PER_PAGE = 20
+THREADS_PER_PAGE = 20
+RECENT_FORUM_ACTIVITIES = 50
 
 
 def get_recent_forum_activities():
     thread_activities = ActivityWrapper.objects.filter(new_thread_activity__isnull=False)
     post_activities = ActivityWrapper.objects.filter(new_post_activity__isnull=False)
-    recent_activities = (thread_activities | post_activities).order_by('-datetime')[:RECENT_FORUM_ACTIVITIES]
+    like_activities = ActivityWrapper.objects.filter(like_activity__isnull=False)
+    recent_activities = (thread_activities | post_activities | like_activities).order_by('-datetime')[:RECENT_FORUM_ACTIVITIES]
     return recent_activities
 
 @login_required(login_url='/login/')
@@ -114,6 +115,10 @@ def like_post(request, pk):
     post = Post.objects.get(pk=pk)
     like = LikeRelation(user=user, post=post)
     like.save()
+    like_activity = LikeActivity(initiator=user, author=post.author, thread=post.thread)
+    like_activity.save()
+    like_activity_wrapper = ActivityWrapper(initiator=user, like_activity=like_activity)
+    like_activity_wrapper.save()
     messages.success(request, 'Successfully liked a post in the thread!')
     return redirect(request.META.get('HTTP_REFERER', '/'))
 

@@ -1,0 +1,13 @@
+{% extends "master.html" %}
+{% block title %}Reviewed Books{% endblock %}
+{% block content %}
+<p><a href="{% url 'profile' user.username %}">Back to profile</a></p>
+<div class="reviewed-books-container">
+    <h2>Read Books</h2>
+    {% if user.pk == request.user.pk %}
+    <p>Your Book Reviews:</p>
+    {% else %}
+    <p>{{ user.first_name }}'s Book Reviews:</p>
+    {% endif %}
+</div>
+{% endblock %}
