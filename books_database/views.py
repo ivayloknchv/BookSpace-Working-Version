@@ -2,7 +2,7 @@ from django.db.models import Count
 from django.contrib import messages
 from datetime import date, datetime
 from django.core.paginator import Paginator
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from books_database.models import (Book, Genre, Author, WantToReadBook,
                                    CurrentlyReadingBook, ReadBook, BookReview)
@@ -28,7 +28,7 @@ def create_recommendations(book):
 
 def view_book(request, slug):
    user = request.user
-   book = Book.objects.get(slug=slug)
+   book = get_object_or_404(Book,slug=slug)
    stars_count = book.reviews_by_stars_count
    recommendations = create_recommendations(book)
 
@@ -75,7 +75,7 @@ def view_all_genres(request):
                   {'current_page' : current_page, 'sort' : sort})
 
 def preview_genre(request, slug):
-   genre = Genre.objects.get(slug=slug)
+   genre = get_object_or_404(Genre, slug=slug)
    books = Book.objects.filter(genres=genre).order_by('title')
    books_paginator = Paginator(books, 20)
    page_num = request.GET.get('page', 1)
@@ -103,7 +103,7 @@ def view_all_authors(request):
    {'current_page' : current_page, 'sort' : sort})
 
 def preview_author(request, slug):
-   author = Author.objects.get(slug=slug)
+   author = get_object_or_404(Author, slug=slug)
    books = Book.objects.filter(author=author).order_by('title')
    books_paginator = Paginator(books, 20)
    page_num = request.GET.get('page', 1)
@@ -115,7 +115,7 @@ def preview_author(request, slug):
 def handle_book_status(request, slug):
 
    user = request.user
-   book = Book.objects.get(slug=slug)
+   book = get_object_or_404(Book, slug=slug)
 
    if request.method == 'POST':
       handle_type = request.POST.get('handle_type')
@@ -136,11 +136,12 @@ def handle_book_status(request, slug):
    return redirect('book', slug)
 
 def handle_want_to_read(user, book):
-   if CurrentlyReadingBook.objects.filter(book_id=book.id, user_id=user.id).exists():
-      CurrentlyReadingBook.objects.filter(book_id=book.id, user_id=user.id).delete()
-   if ReadBook.objects.filter(book_id=book.id, user_id=user.id).exists():
-      ReadBook.objects.filter(book_id=book.id, user_id=user.id).delete()
-   want_to_read_book, is_created = WantToReadBook.objects.get_or_create(book_id=book.id, user_id=user.id,
+   if CurrentlyReadingBook.objects.filter(book=book, user=user).exists():
+      CurrentlyReadingBook.objects.filter(book=book, user=user).delete()
+   if ReadBook.objects.filter(book=book, user=user).exists():
+      ReadBook.objects.filter(book=book, user=user).delete()
+
+   want_to_read_book, is_created = WantToReadBook.objects.get_or_create(book=book, user=user,
                                                                 defaults={'add_date' : datetime.today()})
    want_to_read_book.save()
    want_to_read_activity = WantToReadActivity(book=book, initiator=user)
@@ -150,11 +151,11 @@ def handle_want_to_read(user, book):
    want_to_read_activity_wrapper.save()
 
 def handle_currently_reading(user, book):
-   if WantToReadBook.objects.filter(book_id=book.id, user_id=user.id).exists():
-      WantToReadBook.objects.filter(book_id=book.id, user_id=user.id).delete()
-   if ReadBook.objects.filter(book_id=book.id, user_id=user.id).exists():
-      ReadBook.objects.filter(book_id=book.id, user_id=user.id).delete()
-   currently_reading, is_created = CurrentlyReadingBook.objects.get_or_create(book_id=book.id, user_id=user.id,
+   if WantToReadBook.objects.filter(book=book, user=user).exists():
+      WantToReadBook.objects.filter(book=book, user=user).delete()
+   if ReadBook.objects.filter(book=book, user=user).exists():
+      ReadBook.objects.filter(book=book, user=user).delete()
+   currently_reading, is_created = CurrentlyReadingBook.objects.get_or_create(book=book, user=user,
                                                           defaults={'add_date': datetime.today()})
    currently_reading.save()
    currently_reading_activity = CurrentlyReadingActivity(book=book, initiator=user)
@@ -164,11 +165,11 @@ def handle_currently_reading(user, book):
    currently_reading_activity_wrapper.save()
 
 def handle_read(user, book):
-   if WantToReadBook.objects.filter(book_id=book.id, user_id=user.id).exists():
-      WantToReadBook.objects.filter(book_id=book.id, user_id=user.id).delete()
-   if CurrentlyReadingBook.objects.filter(book_id=book.id, user_id=user.id).exists():
-      CurrentlyReadingBook.objects.filter(book_id=book.id, user_id=user.id).delete()
-   read_book, is_created = ReadBook.objects.get_or_create(book_id = book.id, user_id = user.id,
+   if WantToReadBook.objects.filter(book=book, user=user).exists():
+      WantToReadBook.objects.filter(book=book, user=user).delete()
+   if CurrentlyReadingBook.objects.filter(book=book, user=user).exists():
+      CurrentlyReadingBook.objects.filter(book=book, user=user).delete()
+   read_book, is_created = ReadBook.objects.get_or_create(book = book, user = user,
                                               defaults={'read_date' : datetime.today()})
    read_book.save()
 
@@ -198,8 +199,8 @@ def handle_book_review(request, slug):
          messages.error(request, 'Please choose your rating!')
          return redirect('book', slug)
 
-      review, review_created= BookReview.objects.get_or_create(book_id=book.id,
-         review_user_id=user.id,
+      review, review_created= BookReview.objects.get_or_create(book=book,
+         review_user=user,
          defaults={'review_score': stars, 'review_date': date.today(),})
 
       if not review_created:
@@ -222,7 +223,7 @@ def remove_review(request, slug):
    user = request.user
    book = Book.objects.get(slug=slug)
 
-   if BookReview.objects.filter(book_id=book.id, review_user_id=user.id).exists():
-      BookReview.objects.filter(book_id=book.id, review_user_id=user.id).delete()
+   if BookReview.objects.filter(book=book, review_user=user).exists():
+      BookReview.objects.filter(book=book, review_user=user).delete()
    messages.success(request, f'You removed your review for {book.title}!')
    return redirect('book', slug)
