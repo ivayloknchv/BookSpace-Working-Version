@@ -1,7 +1,7 @@
 from django.contrib.auth.hashers import check_password
 from django.contrib import messages
 from django.core.paginator import Paginator
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from users.models import User, FollowRelation
 from books_database.models import Genre, CurrentlyReadingBook, WantToReadBook, ReadBook, BookReview
 from django.contrib.auth.decorators import login_required
@@ -22,13 +22,15 @@ def signup_(request):
         if signup_form.is_valid():
             user = signup_form.save()
             user.save()
+
             picture_form = MyUpdatePictureForm(data=request.POST, files=request.FILES, instance=user)
-            picture_form.save()
-            login(request, user)
-            return redirect('signup_preferred_genres')
-    else:
-        signup_form = MySignupForm()
-        picture_form = MyUpdatePictureForm()
+            if picture_form.is_valid():
+                picture_form.save()
+                login(request, user)
+                return redirect('signup_preferred_genres')
+
+    signup_form = MySignupForm()
+    picture_form = MyUpdatePictureForm()
     return render(request, 'signup.html', {'signup_form' : signup_form, 'picture_form' : picture_form})
 
 @login_required(login_url='/login/')
@@ -61,8 +63,8 @@ def login_(request):
             return redirect(to_redirect)
         else:
             messages.error(request,'Invalid credentials!')
-    else:
-        form = MyLoginForm(request, data=request.POST)
+
+    form = MyLoginForm(request, data=request.POST)
     return render(request, 'login.html', {'form' : form})
 
 @login_required(login_url='/login/')
@@ -72,7 +74,7 @@ def logout_(request):
 
 @login_required(login_url='/login/')
 def view_profile(request, username):
-    user = User.objects.get(username=username)
+    user = get_object_or_404(User, username=username)
     is_followed = FollowRelation.objects.filter(follower=request.user,followed=user).exists()
     following_count = FollowRelation.objects.filter(follower=user).count()
     followers_count = FollowRelation.objects.filter(followed=user).count()
@@ -152,25 +154,29 @@ def delete_account(request):
 @login_required(login_url='/login/')
 def follow_user(request, username):
     follower = request.user
-    followed = User.objects.get(username=username)
-    follow_relation = FollowRelation(follower=follower, followed=followed)
-    follow_relation.save()
-    follow_activity = FollowActivity(initiator=follower, followed_user=followed)
-    follow_activity.save()
-    follow_activity_wrapper = ActivityWrapper(initiator=follower, follow_activity=follow_activity)
-    follow_activity_wrapper.save()
+    followed = get_object_or_404(User, username=username)
+
+    if follower.username != followed.username:
+        if not FollowRelation.objects.filter(follower=follower, followed=followed).exists():
+            follow_relation = FollowRelation(follower=follower, followed=followed)
+            follow_relation.save()
+            follow_activity = FollowActivity(initiator=follower, followed_user=followed)
+            follow_activity.save()
+            follow_activity_wrapper = ActivityWrapper(initiator=follower, follow_activity=follow_activity)
+            follow_activity_wrapper.save()
+
     return redirect(request.META.get('HTTP_REFERER', '/'))
 
 @login_required(login_url='/login/')
 def unfollow_user(request, username):
     follower = request.user
-    followed = User.objects.get(username=username)
+    followed = get_object_or_404(User, username=username)
     FollowRelation.objects.get(follower=follower, followed=followed).delete()
     return redirect(request.META.get('HTTP_REFERER', '/'))
 
 @login_required(login_url='/login/')
 def read_books(request, username):
-    user = User.objects.get(username=username)
+    user = get_object_or_404(User, username=username)
     books = ReadBook.objects.filter(user=user).order_by('-read_date')
     books_paginator = Paginator(books, BOOKS_PER_PAGE)
     page_num = request.GET.get('page', 1)
@@ -180,7 +186,7 @@ def read_books(request, username):
 
 @login_required(login_url='/login/')
 def currently_reading_books(request, username):
-    user = User.objects.get(username=username)
+    user = get_object_or_404(User, username=username)
     books = CurrentlyReadingBook.objects.filter(user=user).order_by('-add_date')
     books_paginator = Paginator(books, BOOKS_PER_PAGE)
     page_num = request.GET.get('page', 1)
@@ -190,7 +196,7 @@ def currently_reading_books(request, username):
 
 @login_required(login_url='/login/')
 def want_to_read_books(request, username):
-    user = User.objects.get(username=username)
+    user = get_object_or_404(User, username=username)
     books = WantToReadBook.objects.filter(user=user).order_by('-add_date')
     books_paginator = Paginator(books, BOOKS_PER_PAGE)
     page_num = request.GET.get('page', 1)
@@ -200,7 +206,7 @@ def want_to_read_books(request, username):
 
 @login_required(login_url='/login/')
 def reviewed_books(request, username):
-    user = User.objects.get(username=username)
+    user = get_object_or_404(User, username=username)
     books = BookReview.objects.filter(review_user=user).order_by('-review_date')
     books_paginator = Paginator(books, BOOKS_PER_PAGE)
     page_num = request.GET.get('page', 1)

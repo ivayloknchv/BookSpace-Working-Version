@@ -136,11 +136,8 @@ def handle_book_status(request, slug):
    return redirect('book', slug)
 
 def handle_want_to_read(user, book):
-   if CurrentlyReadingBook.objects.filter(book=book, user=user).exists():
-      CurrentlyReadingBook.objects.filter(book=book, user=user).delete()
-   if ReadBook.objects.filter(book=book, user=user).exists():
-      ReadBook.objects.filter(book=book, user=user).delete()
-
+   CurrentlyReadingBook.objects.filter(book=book, user=user).delete()
+   ReadBook.objects.filter(book=book, user=user).delete()
    want_to_read_book, is_created = WantToReadBook.objects.get_or_create(book=book, user=user,
                                                                 defaults={'add_date' : datetime.today()})
    want_to_read_book.save()
@@ -151,10 +148,8 @@ def handle_want_to_read(user, book):
    want_to_read_activity_wrapper.save()
 
 def handle_currently_reading(user, book):
-   if WantToReadBook.objects.filter(book=book, user=user).exists():
-      WantToReadBook.objects.filter(book=book, user=user).delete()
-   if ReadBook.objects.filter(book=book, user=user).exists():
-      ReadBook.objects.filter(book=book, user=user).delete()
+   WantToReadBook.objects.filter(book=book, user=user).delete()
+   ReadBook.objects.filter(book=book, user=user).delete()
    currently_reading, is_created = CurrentlyReadingBook.objects.get_or_create(book=book, user=user,
                                                           defaults={'add_date': datetime.today()})
    currently_reading.save()
@@ -165,10 +160,8 @@ def handle_currently_reading(user, book):
    currently_reading_activity_wrapper.save()
 
 def handle_read(user, book):
-   if WantToReadBook.objects.filter(book=book, user=user).exists():
-      WantToReadBook.objects.filter(book=book, user=user).delete()
-   if CurrentlyReadingBook.objects.filter(book=book, user=user).exists():
-      CurrentlyReadingBook.objects.filter(book=book, user=user).delete()
+   WantToReadBook.objects.filter(book=book, user=user).delete()
+   CurrentlyReadingBook.objects.filter(book=book, user=user).delete()
    read_book, is_created = ReadBook.objects.get_or_create(book = book, user = user,
                                               defaults={'read_date' : datetime.today()})
    read_book.save()
@@ -180,17 +173,14 @@ def handle_read(user, book):
       read_activity_wrapper.save()
 
 def handle_reset(user, book):
-   if WantToReadBook.objects.filter(book_id=book.id, user_id=user.id).exists():
-      WantToReadBook.objects.filter(book_id=book.id, user_id=user.id).delete()
-   if CurrentlyReadingBook.objects.filter(book_id=book.id, user_id=user.id).exists():
-      CurrentlyReadingBook.objects.filter(book_id=book.id, user_id=user.id).delete()
-   if ReadBook.objects.filter(book_id=book.id, user_id=user.id).exists():
-      ReadBook.objects.filter(book_id=book.id, user_id=user.id).delete()
+   WantToReadBook.objects.filter(book_id=book.id, user_id=user.id).delete()
+   CurrentlyReadingBook.objects.filter(book_id=book.id, user_id=user.id).delete()
+   ReadBook.objects.filter(book_id=book.id, user_id=user.id).delete()
 
 @login_required(login_url='/login/')
 def handle_book_review(request, slug):
    user = request.user
-   book = Book.objects.get(slug=slug)
+   book = get_object_or_404(Book, slug=slug)
 
    if request.method == 'POST':
       stars = request.POST.get('stars', None)

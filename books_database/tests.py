@@ -329,4 +329,3 @@ class ViewsTest(TestCase):
         self.client.force_login(self.user)
         self.client.post(reverse('remove_review', kwargs={'slug': self.book2.slug}))
         self.assertFalse(BookReview.objects.filter(book=self.book2, review_user=self.user).exists())
-
