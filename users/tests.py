@@ -1,8 +1,5 @@
-from Demos.win32ts_logoff_disconnected import username
-from django.contrib.auth.hashers import check_password
 from django.urls import reverse
 from django.test import TestCase, Client
-
 from activities.models import FollowActivity
 from users.models import User, FollowRelation
 from django.contrib.auth.models import AbstractUser
@@ -33,7 +30,7 @@ class FollowTest(TestCase):
         self.assertTrue(isinstance(follow, FollowRelation))
 
 
-class ViewsTest(TestCase):
+class UserViewsTest(TestCase):
 
     def setUp(self):
         self.client = Client()

@@ -32,30 +32,30 @@ class BookAdmin(admin.ModelAdmin):
 
 class WantToReadBookAdmin(admin.ModelAdmin):
     model = WantToReadBook
-    ordering = ('add_date', )
-    fields = ('book', 'user', 'add_date')
-    list_display = ('book', 'user', 'add_date')
+    ordering = ('book', 'user', 'date')
+    fields = ('book', 'user', 'date')
+    list_display = ('book', 'user', 'date')
 
 
 class CurrentlyReadingBookAdmin(admin.ModelAdmin):
     model = CurrentlyReadingBook
-    ordering = ('add_date', )
-    fields = ('book', 'user', 'add_date')
-    list_display = ('book', 'user', 'add_date')
+    ordering = ('book', 'user', 'date')
+    fields = ('book', 'user', 'date')
+    list_display = ('book', 'user', 'date')
 
 
 class ReadBookAdmin(admin.ModelAdmin):
     model = ReadBook
-    ordering = ('book', 'user', 'read_date')
-    fields = ('book', 'user', 'read_date')
-    list_display = ('book', 'user', 'read_date')
+    ordering = ('book', 'user', 'date')
+    fields = ('book', 'user', 'date')
+    list_display = ('book', 'user', 'date')
 
 
 class BookReviewAdmin(admin.ModelAdmin):
     model = BookReview
-    ordering = ('review_date',)
-    fields = ('book', 'review_user', 'review_score', 'review_date')
-    list_display = ('book', 'review_user', 'review_score', 'review_date')
+    ordering = ('book', 'user', 'score', 'date')
+    fields = ('book', 'user', 'score', 'date')
+    list_display = ('book', 'user', 'score', 'date')
 
 
 admin.site.register(Genre, GenreAdmin)

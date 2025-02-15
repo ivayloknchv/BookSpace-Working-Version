@@ -64,45 +64,60 @@ class Book(models.Model):
     @property
     def avg_review(self):
         reviews = self.bookreview_set.all()
-        return reviews.aggregate(Avg('review_score'))['review_score__avg']
+        return reviews.aggregate(Avg('score'))['score__avg']
 
     @property
     def reviews_by_stars_count(self):
         reviews = self.bookreview_set.all()
         stars_count = {}
         for i in range(1, 6):
-            stars_count[i] = reviews.filter(review_score=i).count()
+            stars_count[i] = reviews.filter(score=i).count()
         return stars_count
 
 
-class WantToReadBook(models.Model):
-    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+class BookStatus(models.Model):
+    book = models.ForeignKey('Book', on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    add_date = models.DateField()
+    date = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        abstract = True
 
 
-class CurrentlyReadingBook(models.Model):
-    book = models.ForeignKey(Book, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    add_date = models.DateField()
+class WantToReadBook(BookStatus):
+
+    class Meta:
+        verbose_name_plural = 'Want To Read Books'
+
+        def __str__(self):
+            return f'{self.user} wants to read {self.book}'
 
 
-class ReadBook(models.Model):
-    book = models.ForeignKey(Book, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    read_date = models.DateField()
+class CurrentlyReadingBook(BookStatus):
+
+    class Meta:
+        verbose_name_plural = 'Currently Reading Books'
+
+    def __str__(self):
+        return f'{self.user} is currently reading {self.book}'
+
+
+class ReadBook(BookStatus):
+
+    class Meta:
+        verbose_name_plural = 'Read Books'
 
     def __str__(self):
         return f'{self.book.title} read by {self.user} on {self.read_date}'
 
 
-class BookReview(models.Model):
-    book = models.ForeignKey(Book, on_delete=models.CASCADE)
-    review_user = models.ForeignKey(User, on_delete=models.CASCADE)
-    review_score = models.PositiveIntegerField(default=0)
-    review_date = models.DateField()
+class BookReview(BookStatus):
+    score = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        verbose_name_plural = 'Book Reviews'
 
     def __str__(self):
-        return f'Review for {self.book.title} - {self.review_score}'
+        return f'Review for {self.book.title} - {self.score}'
 
 

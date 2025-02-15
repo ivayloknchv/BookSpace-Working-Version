@@ -15,7 +15,7 @@
                 style="width: 200px; height: 350px; object-fit: cover; margin: 0 auto;">
             <div class="card-body d-flex flex-column" style="flex-grow: 1;">
                 <h4><a href="{% url 'book' book.slug %}"><b>{{book.title}}</b></a></h4>
-                <h5>{{book.author.name}}</h5>
+                <h5 class="text-muted">{{book.author.name}}</h5>
                 <br><br>
             </div>
         </div>

@@ -129,7 +129,7 @@
                style="width: 200px; height: 350px; object-fit: cover; margin: 0 auto;">
             <div class="card-body d-flex flex-column" style="flex-grow: 1;">
                <h4><a href="{% url 'book' recommendation.slug %}"><b>{{recommendation.title}}</b></a></h4>
-               <h5>{{recommendation.author.name}}</h5>
+               <h5 class="text-muted">{{recommendation.author.name}}</h5>
                <br><br><br>
             </div>
          </div>

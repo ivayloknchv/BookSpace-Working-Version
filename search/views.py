@@ -2,6 +2,7 @@ from django.shortcuts import render
 from books_database.models import Book
 from django.core.paginator import Paginator
 
+RESULTS_PER_PAGE = 20
 
 def search(request):
     if request.method == 'GET':

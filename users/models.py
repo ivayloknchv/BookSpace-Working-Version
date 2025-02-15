@@ -13,9 +13,13 @@ class User(AbstractUser):
 
 
 class FollowRelation(models.Model):
+
     follower = models.ForeignKey(User, on_delete=models.CASCADE, related_name='follower')
     followed = models.ForeignKey(User, on_delete=models.CASCADE, related_name='followed')
     date_time = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name_plural = 'Follow Relations'
 
 
 

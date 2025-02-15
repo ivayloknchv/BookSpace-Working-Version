@@ -31,7 +31,7 @@
                 {% else %}
                 <td>No reviews yet</td>
                 {% endif %}
-                <td>{{ read_book.read_date }}</td>
+                <td>{{ read_book.date.date }}</td>
             </tr>
             {% endfor %}
         </tbody>

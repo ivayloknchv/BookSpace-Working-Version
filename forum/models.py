@@ -71,4 +71,4 @@ class LikeRelation(models.Model):
         verbose_name_plural = 'Like Relations'
 
     def __str__(self):
-        return f'{self.user} like {self.post.author}\'s post in {self.post.thread}'
+        return f'{self.user} liked {self.post.author}\'s post in {self.post.thread}'

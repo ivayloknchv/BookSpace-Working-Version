@@ -2,7 +2,7 @@ from django.urls import reverse
 from django.contrib import messages
 from django.db.models import Max, Count
 from django.core.paginator import Paginator
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from forum.forms import CreateThreadForm, ThreadReplyForm
 from django.contrib.auth.decorators import login_required
 from forum.models import Category, Post, Thread, LikeRelation
@@ -30,7 +30,7 @@ def show_forum_homepage(request):
 
 @login_required(login_url='/login/')
 def show_category(request, slug):
-    current_category = Category.objects.get(slug=slug)
+    current_category = get_object_or_404(Category, slug=slug)
     threads = (Thread.objects.filter(category=current_category).annotate(latest_post_time=Max('post__post_datetime'),
                                        posts_count=Count('post')).order_by('-latest_post_time'))
     threads_paginator = Paginator(threads, THREADS_PER_PAGE)
@@ -41,7 +41,7 @@ def show_category(request, slug):
 
 @login_required(login_url='/login/')
 def create_thread(request, slug):
-    thread_category = Category.objects.get(slug=slug)
+    thread_category = get_object_or_404(Category, slug=slug)
     form = CreateThreadForm()
     return render(request, 'create_thread.html', { 'thread_category' : thread_category,
                                                    'form' : form })
@@ -49,7 +49,7 @@ def create_thread(request, slug):
 @login_required(login_url='/login/')
 def save_thread(request, slug):
     user = request.user
-    category = Category.objects.get(slug=slug)
+    category = get_object_or_404(Category, slug=slug)
 
     if request.method == 'POST':
         form = CreateThreadForm(request.POST)
@@ -70,7 +70,7 @@ def save_thread(request, slug):
 
 @login_required(login_url='/login/')
 def view_thread(request, slug):
-    thread = Thread.objects.get(slug=slug)
+    thread = get_object_or_404(Thread, slug=slug)
     posts = Post.objects.filter(thread=thread).order_by('post_datetime')
     posts_paginator = Paginator(posts, POSTS_PER_PAGE)
     page_num = request.GET.get('page', 1)
@@ -86,7 +86,7 @@ def view_thread(request, slug):
 @login_required(login_url='/login/')
 def add_reply(request, slug):
     user = request.user
-    thread = Thread.objects.get(slug=slug)
+    thread = get_object_or_404(Thread, slug=slug)
 
     if request.method == 'POST':
         form = ThreadReplyForm(request.POST)
@@ -105,27 +105,31 @@ def add_reply(request, slug):
             posts = Post.objects.filter(thread=thread).order_by('post_datetime')
             posts_paginator = Paginator(posts, POSTS_PER_PAGE)
             last_page = posts_paginator.num_pages
-            return redirect(f"{reverse('view_thread', args=[slug])}?page={last_page}")
+            return redirect(f'{reverse('view_thread', args=[slug])}?page={last_page}')
 
-    return redirect('view_thread', slug=thread.slug)\
+    return redirect('view_thread', slug=thread.slug)
 
 @login_required(login_url='/login/')
 def like_post(request, pk):
     user = request.user
-    post = Post.objects.get(pk=pk)
-    like = LikeRelation(user=user, post=post)
-    like.save()
-    like_activity = LikeActivity(initiator=user, author=post.author, thread=post.thread)
-    like_activity.save()
-    like_activity_wrapper = ActivityWrapper(initiator=user, like_activity=like_activity)
-    like_activity_wrapper.save()
-    messages.success(request, 'Successfully liked a post in the thread!')
+    post = get_object_or_404(Post, pk=pk)
+
+    like, is_created = LikeRelation.objects.get_or_create(user=user, post=post)
+
+    if is_created:
+        like.save()
+        like_activity = LikeActivity(initiator=user, author=post.author, thread=post.thread)
+        like_activity.save()
+        like_activity_wrapper = ActivityWrapper(initiator=user, like_activity=like_activity)
+        like_activity_wrapper.save()
+        messages.success(request, 'Successfully liked a post in the thread!')
+
     return redirect(request.META.get('HTTP_REFERER', '/'))
 
 @login_required(login_url='/login/')
 def unlike_post(request, pk):
     user = request.user
-    post = Post.objects.get(pk=pk)
+    post = get_object_or_404(Post, pk=pk)
 
     if LikeRelation.objects.filter(user=user, post=post).exists():
         LikeRelation.objects.get(user=user, post=post).delete()

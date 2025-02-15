@@ -111,25 +111,25 @@ class BookModelTest(TestCase):
         self.assertEqual(self.book.get_absolute_url(), '/book/my-title-1/')
 
     def test_average_user_score_1(self):
-        review1 = BookReview(book=self.book, review_user=self.user1, review_score=1, review_date=datetime.now())
+        review1 = BookReview(book=self.book, user=self.user1, score=1)
         review1.save()
-        review2 = BookReview(book=self.book, review_user=self.user2, review_score=3, review_date=datetime.now())
+        review2 = BookReview(book=self.book, user=self.user2, score=3)
         review2.save()
         self.assertEqual(self.book.avg_review, 2)
 
     def test_average_user_score_2(self):
-        review1 = BookReview(book=self.book, review_user=self.user1, review_score=4, review_date=datetime.now())
+        review1 = BookReview(book=self.book, user=self.user1, score=4)
         review1.save()
-        review2 = BookReview(book=self.book, review_user=self.user2, review_score=3, review_date=datetime.now())
+        review2 = BookReview(book=self.book, user=self.user2, score=3)
         review2.save()
         self.assertEqual(self.book.avg_review, 3.5)
 
     def test_book_stars_count(self):
-        review1 = BookReview(book=self.book, review_user=self.user1, review_score=5, review_date=datetime.now())
+        review1 = BookReview(book=self.book, user=self.user1, score=5)
         review1.save()
-        review2 = BookReview(book=self.book, review_user=self.user2, review_score=3, review_date=datetime.now())
+        review2 = BookReview(book=self.book, user=self.user2, score=3)
         review2.save()
-        review3 = BookReview(book=self.book, review_user=self.user2, review_score=3, review_date=datetime.now())
+        review3 = BookReview(book=self.book, user=self.user2, score=3)
         review3.save()
 
         stars_count = self.book.reviews_by_stars_count
@@ -158,35 +158,35 @@ class BookStatusTest(TestCase):
         self.user.save()
 
     def test_want_to_read_creation(self):
-        want_to_read = WantToReadBook(book=self.book, user=self.user, add_date=datetime.now())
+        want_to_read = WantToReadBook(book=self.book, user=self.user)
         want_to_read.save()
         self.assertTrue(isinstance(want_to_read, WantToReadBook))
         self.assertTrue(isinstance(want_to_read, models.Model))
         self.assertFalse(isinstance(want_to_read, CurrentlyReadingBook))
 
     def test_currently_reading_creation(self):
-        currently_reading = WantToReadBook(book=self.book, user=self.user, add_date=datetime.now())
+        currently_reading = WantToReadBook(book=self.book, user=self.user)
         currently_reading.save()
         self.assertTrue(isinstance(currently_reading, WantToReadBook))
         self.assertTrue(isinstance(currently_reading, models.Model))
         self.assertFalse(isinstance(currently_reading, CurrentlyReadingBook))
 
     def test_read_book_creation(self):
-        read = ReadBook(book=self.book, user=self.user, read_date=datetime.now())
+        read = ReadBook(book=self.book, user=self.user)
         read.save()
         self.assertTrue(isinstance(read, ReadBook))
         self.assertTrue(isinstance(read, models.Model))
         self.assertFalse(isinstance(read, WantToReadBook))
 
     def test_book_review_creation(self):
-        review = BookReview(book=self.book, review_user=self.user, review_score=5, review_date=datetime.now())
+        review = BookReview(book=self.book, user=self.user, score=5)
         review.save()
         self.assertTrue(isinstance(review, BookReview))
-        self.assertEqual(review.review_score, 5)
-        self.assertEqual(str(review), f'Review for {self.book.title} - {review.review_score}')
+        self.assertEqual(review.score, 5)
+        self.assertEqual(str(review), f'Review for {self.book.title} - {review.score}')
 
 
-class ViewsTest(TestCase):
+class BookViewsTest(TestCase):
 
     def setUp(self):
         self.client = Client()
@@ -252,7 +252,7 @@ class ViewsTest(TestCase):
     def test_want_to_read_a_book_with_currently_reading(self):
         """Test moving a book from Currently Reading to Want To Read status"""
 
-        CurrentlyReadingBook(book=self.book2, user=self.user, add_date=datetime.now()).save()
+        CurrentlyReadingBook(book=self.book2, user=self.user).save()
         handle_want_to_read(self.user, self.book2)
 
         self.assertTrue(WantToReadBook.objects.filter(book=self.book2, user=self.user).exists())
@@ -262,7 +262,7 @@ class ViewsTest(TestCase):
     def test_want_to_read_a_book_with_read(self):
         """Test moving a book from Read to Want To Read status"""
 
-        ReadBook(book=self.book1, user=self.user, read_date=datetime.now()).save()
+        ReadBook(book=self.book1, user=self.user).save()
         handle_want_to_read(self.user, self.book1)
 
         self.assertTrue(WantToReadBook.objects.filter(book=self.book1, user=self.user).exists())
@@ -272,7 +272,7 @@ class ViewsTest(TestCase):
     def test_currently_reading_with_want_to_read(self):
         """Test moving a book from Want to Read to Currently Reading status"""
 
-        WantToReadBook(book=self.book1, user=self.user, add_date=datetime.now()).save()
+        WantToReadBook(book=self.book1, user=self.user).save()
         handle_currently_reading(self.user, self.book1)
 
         self.assertTrue(CurrentlyReadingBook.objects.filter(book=self.book1, user=self.user).exists())
@@ -282,7 +282,7 @@ class ViewsTest(TestCase):
     def test_currently_reading_with_read(self):
         """Test moving a book from Read to Currently Reading status"""
 
-        ReadBook(book=self.book2, user=self.user, read_date=datetime.now()).save()
+        ReadBook(book=self.book2, user=self.user).save()
         handle_currently_reading(self.user, self.book2)
 
         self.assertTrue(CurrentlyReadingBook.objects.filter(book=self.book2, user=self.user).exists())
@@ -292,7 +292,7 @@ class ViewsTest(TestCase):
     def test_read_with_want_to_read(self):
         """Test moving a book from Want to Read to Read status"""
 
-        WantToReadBook(book=self.book1, user=self.user, add_date=datetime.now()).save()
+        WantToReadBook(book=self.book1, user=self.user).save()
         handle_read(self.user, self.book1)
 
         self.assertTrue(ReadBook.objects.filter(book=self.book1, user=self.user).exists())
@@ -302,7 +302,7 @@ class ViewsTest(TestCase):
     def test_read_with_currently_reading(self):
         """Test moving a book from Want to Read to Read status"""
 
-        CurrentlyReadingBook(book=self.book2, user=self.user, add_date=datetime.now()).save()
+        CurrentlyReadingBook(book=self.book2, user=self.user).save()
         handle_read(self.user, self.book2)
 
         self.assertTrue(ReadBook.objects.filter(book=self.book2, user=self.user).exists())
@@ -310,22 +310,22 @@ class ViewsTest(TestCase):
         self.assertTrue(ReadActivity.objects.filter(initiator=self.user, book=self.book2).exists())
 
     def test_handle_reset_currently_reading(self):
-        CurrentlyReadingBook(book=self.book1, user=self.user, add_date=datetime.now()).save()
+        CurrentlyReadingBook(book=self.book1, user=self.user).save()
         handle_reset(self.user, self.book1)
         self.assertFalse(CurrentlyReadingBook.objects.filter(book=self.book1, user=self.user).exists())
 
     def test_handle_reset_want_to_read(self):
-        WantToReadBook(book=self.book2, user=self.user, add_date=datetime.now()).save()
+        WantToReadBook(book=self.book2, user=self.user).save()
         handle_reset(self.user, self.book2)
         self.assertFalse(WantToReadBook.objects.filter(book=self.book2, user=self.user).exists())
 
     def test_handle_reset_read(self):
-        ReadBook(book=self.book2, user=self.user, read_date=datetime.now()).save()
+        ReadBook(book=self.book2, user=self.user).save()
         handle_reset(self.user, self.book2)
         self.assertFalse(ReadBook.objects.filter(book=self.book2, user=self.user).exists())
 
     def test_remove_review(self):
-        BookReview(book=self.book2, review_user=self.user, review_date=datetime.now()).save()
+        BookReview(book=self.book2, user=self.user).save()
         self.client.force_login(self.user)
         self.client.post(reverse('remove_review', kwargs={'slug': self.book2.slug}))
-        self.assertFalse(BookReview.objects.filter(book=self.book2, review_user=self.user).exists())
+        self.assertFalse(BookReview.objects.filter(book=self.book2, user=self.user).exists())

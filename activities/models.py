@@ -35,7 +35,7 @@ class FollowActivity(ActivityBase):
     followed_user = models.ForeignKey('users.User', on_delete=models.CASCADE, related_name='followed_user')
 
     class Meta:
-        verbose_name_plural = "Follow Activities"
+        verbose_name_plural = 'Follow Activities'
 
     def display_activity(self):
         initiator_url = reverse('profile', args=[self.initiator.username])
@@ -51,7 +51,7 @@ class FollowActivity(ActivityBase):
 class NewThreadActivity(ForumActivity):
 
     class Meta:
-        verbose_name_plural = "New Thread Activities"
+        verbose_name_plural = 'New Thread Activities'
 
     def display_activity(self):
         initiator_url = reverse('profile', args=[self.initiator.username])
@@ -67,7 +67,7 @@ class NewThreadActivity(ForumActivity):
 class NewPostActivity(ForumActivity):
 
     class Meta:
-        verbose_name_plural = "New Post Activities"
+        verbose_name_plural = 'New Post Activities'
 
     def display_activity(self):
         initiator_url = reverse('profile', args=[self.initiator.username])
@@ -84,7 +84,7 @@ class LikeActivity(ForumActivity):
     author = models.ForeignKey('users.User', on_delete=models.CASCADE)
 
     class Meta:
-        verbose_name_plural = "Like Activities"
+        verbose_name_plural = 'Like Activities'
 
     def display_activity(self):
         initiator_url = reverse('profile', args=[self.initiator.username])
@@ -99,11 +99,10 @@ class LikeActivity(ForumActivity):
         return f'{self.initiator} liked {self.author}\'s post in {self.thread}'
 
 
-
 class WantToReadActivity(ActivityBook):
 
     class Meta:
-        verbose_name_plural = "Want To Read Activities"
+        verbose_name_plural = 'Want To Read Activities'
 
     def display_activity(self):
         initiator_url = reverse('profile', args=[self.initiator.username])
@@ -119,7 +118,7 @@ class WantToReadActivity(ActivityBook):
 class CurrentlyReadingActivity(ActivityBook):
 
     class Meta:
-        verbose_name_plural = "Currently Reading Activities"
+        verbose_name_plural = 'Currently Reading Activities'
 
     def display_activity(self):
         initiator_url = reverse('profile', args=[self.initiator.username])
@@ -135,7 +134,7 @@ class CurrentlyReadingActivity(ActivityBook):
 class ReadActivity(ActivityBook):
 
     class Meta:
-        verbose_name_plural = "Read Activities"
+        verbose_name_plural = 'Read Activities'
 
     def display_activity(self):
         initiator_url = reverse('profile', args=[self.initiator.username])
@@ -152,7 +151,7 @@ class RatingActivity(ActivityBook):
     stars = models.PositiveIntegerField(default=0)
 
     class Meta:
-        verbose_name_plural = "Rating Activities"
+        verbose_name_plural = 'Rating Activities'
 
     def display_activity(self):
         initiator_url = reverse('profile', args=[self.initiator.username])
@@ -166,6 +165,7 @@ class RatingActivity(ActivityBook):
 
 
 class ActivityWrapper(models.Model):
+
     initiator = models.ForeignKey('users.User', on_delete=models.CASCADE)
     datetime = models.DateTimeField(auto_now_add=True)
     follow_activity = models.ForeignKey(FollowActivity, on_delete=models.CASCADE, null=True, blank=True)
@@ -176,6 +176,9 @@ class ActivityWrapper(models.Model):
     currently_reading_activity = models.ForeignKey(CurrentlyReadingActivity, on_delete=models.CASCADE, null=True, blank=True)
     read_activity = models.ForeignKey(ReadActivity, on_delete=models.CASCADE, null=True, blank=True)
     rating_activity = models.ForeignKey(RatingActivity, on_delete=models.CASCADE, null=True, blank=True)
+
+    class Meta:
+        verbose_name_plural = 'Activity Wrappers'
 
     def display_activity(self):
         datetime_display = self.datetime.strftime('%d.%m.%Y %H:%M')

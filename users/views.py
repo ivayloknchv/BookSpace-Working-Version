@@ -1,14 +1,14 @@
-from django.contrib.auth.hashers import check_password
 from django.contrib import messages
 from django.core.paginator import Paginator
-from django.shortcuts import render, redirect, get_object_or_404
 from users.models import User, FollowRelation
-from books_database.models import Genre, CurrentlyReadingBook, WantToReadBook, ReadBook, BookReview
+from django.contrib.auth.hashers import check_password
 from django.contrib.auth.decorators import login_required
+from activities.models import FollowActivity, ActivityWrapper
+from django.shortcuts import render, redirect, get_object_or_404
+from books_database.models import Genre, CurrentlyReadingBook, WantToReadBook, ReadBook, BookReview
 from django.contrib.auth import login, logout, authenticate, update_session_auth_hash
 from .forms import (MyLoginForm, MyUpdatePictureForm, MySignupForm, MySignupGenresForm, MyEditProfileForm,
                     MyPasswordChangeForm, MyChangeGenresForm)
-from activities.models import FollowActivity, ActivityWrapper
 
 
 BOOKS_PER_PAGE = 10
@@ -157,9 +157,9 @@ def follow_user(request, username):
     followed = get_object_or_404(User, username=username)
 
     if follower.username != followed.username:
-        if not FollowRelation.objects.filter(follower=follower, followed=followed).exists():
-            follow_relation = FollowRelation(follower=follower, followed=followed)
-            follow_relation.save()
+        follow_relation, is_created = FollowRelation.objects.get_or_create(follower=follower, followed=followed)
+
+        if is_created:
             follow_activity = FollowActivity(initiator=follower, followed_user=followed)
             follow_activity.save()
             follow_activity_wrapper = ActivityWrapper(initiator=follower, follow_activity=follow_activity)
@@ -177,7 +177,7 @@ def unfollow_user(request, username):
 @login_required(login_url='/login/')
 def read_books(request, username):
     user = get_object_or_404(User, username=username)
-    books = ReadBook.objects.filter(user=user).order_by('-read_date')
+    books = ReadBook.objects.filter(user=user).order_by('-date')
     books_paginator = Paginator(books, BOOKS_PER_PAGE)
     page_num = request.GET.get('page', 1)
     read_books_page = books_paginator.get_page(page_num)
@@ -187,7 +187,7 @@ def read_books(request, username):
 @login_required(login_url='/login/')
 def currently_reading_books(request, username):
     user = get_object_or_404(User, username=username)
-    books = CurrentlyReadingBook.objects.filter(user=user).order_by('-add_date')
+    books = CurrentlyReadingBook.objects.filter(user=user).order_by('-date')
     books_paginator = Paginator(books, BOOKS_PER_PAGE)
     page_num = request.GET.get('page', 1)
     currently_reading_page = books_paginator.get_page(page_num)
@@ -197,7 +197,7 @@ def currently_reading_books(request, username):
 @login_required(login_url='/login/')
 def want_to_read_books(request, username):
     user = get_object_or_404(User, username=username)
-    books = WantToReadBook.objects.filter(user=user).order_by('-add_date')
+    books = WantToReadBook.objects.filter(user=user).order_by('-date')
     books_paginator = Paginator(books, BOOKS_PER_PAGE)
     page_num = request.GET.get('page', 1)
     want_to_read_page = books_paginator.get_page(page_num)
@@ -207,7 +207,7 @@ def want_to_read_books(request, username):
 @login_required(login_url='/login/')
 def reviewed_books(request, username):
     user = get_object_or_404(User, username=username)
-    books = BookReview.objects.filter(review_user=user).order_by('-review_date')
+    books = BookReview.objects.filter(user=user).order_by('-date')
     books_paginator = Paginator(books, BOOKS_PER_PAGE)
     page_num = request.GET.get('page', 1)
     reviewed_books_page = books_paginator.get_page(page_num)
@@ -216,7 +216,7 @@ def reviewed_books(request, username):
 
 @login_required(login_url='/login/')
 def view_followers(request, username):
-    user = User.objects.get(username=username)
+    user = get_object_or_404(User, username=username)
     followers = FollowRelation.objects.filter(followed=user)
     followers_paginator = Paginator(followers, ACCOUNTS_PER_PAGE)
     page_num = request.GET.get('page', 1)
@@ -226,7 +226,7 @@ def view_followers(request, username):
 
 @login_required(login_url='/login/')
 def view_following(request, username):
-    user = User.objects.get(username=username)
+    user = get_object_or_404(User, username=username)
     following = FollowRelation.objects.filter(follower=user)
     following_paginator = Paginator(following, ACCOUNTS_PER_PAGE)
     page_num = request.GET.get('page', 1)

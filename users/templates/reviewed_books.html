@@ -26,8 +26,8 @@
                 <td><img src="{{ reviewed_book.book.cover_url }}" height="60" width="40"></td>
                 <td><a href="{% url 'book' reviewed_book.book.slug %}">{{ reviewed_book.book.title }}</a></td>
                 <td><a href="{% url 'preview_author' reviewed_book.book.author.slug %}">{{ reviewed_book.book.author }}</a></td>
-                <td>{{ reviewed_book.review_score }}</td>
-                <td>{{ reviewed_book.review_date }}</td>
+                <td>{{ reviewed_book.score }}</td>
+                <td>{{ reviewed_book.date.date }}</td>
                 <td>{{ reviewed_book.book.avg_review }}</td>
             </tr>
             {% endfor %}
