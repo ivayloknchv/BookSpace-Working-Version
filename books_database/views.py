@@ -10,6 +10,7 @@ from activities.models import (WantToReadActivity, CurrentlyReadingActivity, Rea
                                RatingActivity, ActivityWrapper)
 
 
+BOOKS_PER_PAGE = 20
 RECOMMENDATIONS_TO_SHOW = 12
 
 
@@ -64,7 +65,7 @@ def view_all_genres(request):
    page_num = request.GET.get('page', 1)
    sort = request.GET.get('sort', 'countDesc')
    all_genres = sort_genres(sort)
-   genres_paginator = Paginator(all_genres, 20)
+   genres_paginator = Paginator(all_genres, BOOKS_PER_PAGE)
    current_page = genres_paginator.get_page(page_num)
    return  render(request, 'all_genres.html',
                   {'current_page' : current_page, 'sort' : sort})
@@ -72,7 +73,7 @@ def view_all_genres(request):
 def preview_genre(request, slug):
    genre = get_object_or_404(Genre, slug=slug)
    books = Book.objects.filter(genres=genre).order_by('title')
-   books_paginator = Paginator(books, 20)
+   books_paginator = Paginator(books, BOOKS_PER_PAGE)
    page_num = request.GET.get('page', 1)
    current_page = books_paginator.get_page(page_num)
    return render(request, 'preview_genre.html',
@@ -92,7 +93,7 @@ def view_all_authors(request):
    page_num = request.GET.get('page', 1)
    sort = request.GET.get('sort', 'countDesc')
    all_authors = sort_authors(sort)
-   authors_paginator= Paginator(all_authors, 20)
+   authors_paginator= Paginator(all_authors, BOOKS_PER_PAGE)
    current_page = authors_paginator.get_page(page_num)
    return render(request, 'all_authors.html',
    {'current_page' : current_page, 'sort' : sort})
@@ -100,7 +101,7 @@ def view_all_authors(request):
 def preview_author(request, slug):
    author = get_object_or_404(Author, slug=slug)
    books = Book.objects.filter(author=author).order_by('title')
-   books_paginator = Paginator(books, 20)
+   books_paginator = Paginator(books, BOOKS_PER_PAGE)
    page_num = request.GET.get('page', 1)
    current_page = books_paginator.get_page(page_num)
    return render(request, 'preview_author.html',
@@ -184,8 +185,6 @@ def handle_book_review(request, slug):
       review, review_created= BookReview.objects.get_or_create(book=book, user=user, defaults={'score': stars})
 
       if not review_created:
-         review.score = stars
-         review.save()
          rating_activity = RatingActivity(initiator=user, book=book, stars=stars)
          rating_activity.save()
          rating_activity_wrapper = ActivityWrapper(initiator=user, rating_activity = rating_activity)

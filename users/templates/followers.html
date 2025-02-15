@@ -18,11 +18,11 @@ Your Followers
 <ul class="list-group">
     {% for follower in followers_page %}
     <li class="list-group-item">
-        <img src="{{ follower.follower.profile_picture.url }}" height="40" width="40"
+        <img src="{{ follower.follower.profile_picture.url }}" height="50" width="50"
              style="border-radius: 50%;">
         <a href="{% url 'profile' follower.follower %}">
             {{ follower.follower.first_name }} {{ follower.follower.last_name }}
-            {{ follower.follower }}
+            ({{ follower.follower }})
         </a>
     </li>
     {% endfor %}

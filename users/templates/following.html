@@ -18,11 +18,11 @@ Following
 <ul class="list-group">
     {% for followed in following_page %}
     <li class="list-group-item">
-        <img src="{{ followed.followed.profile_picture.url }}" height="40" width="40"
+        <img src="{{ followed.followed.profile_picture.url }}" height="50" width="50"
              style="border-radius: 50%;">
         <a href="{% url 'profile' followed.followed.username %}">
             {{ followed.followed.first_name }} {{ followed.followed.last_name }}
-            {{ followed.followed }}
+            ({{ followed.followed }})
         </a>
     </li>
     {% endfor %}
