@@ -1,3 +1,4 @@
+from django.http import Http404
 from users.models import User
 from django.shortcuts import render
 from books_database.models import Book
@@ -24,9 +25,12 @@ def search(request):
     if request.method == 'GET':
         query = request.GET.get('q', '').strip()
         results = request.GET.get('results', 'books')
+
         context = {}
+
         if query:
             found_results = None
+
             if results == 'books':
                 found_results = get_searched_books(query)
             elif results == 'users':
